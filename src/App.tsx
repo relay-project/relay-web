@@ -1,34 +1,57 @@
-import React, { useState } from 'react';
-import reactLogo from './assets/react.svg';
+import React, {
+  memo,
+  useEffect,
+  useState,
+} from 'react';
+import { connect, Socket } from 'socket.io-client';
+
+import { BACKEND_URL, EVENTS } from './configuration';
 import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0);
+function App(): React.ReactElement {
+  const [connection, setConnection] = useState<Socket>();
+
+  useEffect(
+    (): void => {
+      const socket = connect(BACKEND_URL);
+      setConnection(socket);
+    },
+    [],
+  );
+
+  useEffect(
+    (): (() => void) => {
+      if (connection) {
+        connection.on(EVENTS.CONNECT, (): void => {
+          console.log('connected', connection.id);
+          connection.emit(
+            EVENTS.SIGN_IN,
+            {
+              login: '',
+              password: 'test',
+            },
+          );
+        });
+        connection.on(EVENTS.SIGN_IN, (payload) => console.log('sign in', payload));
+      }
+
+      return (): void => {
+        if (connection) {
+          connection.removeAllListeners();
+          connection.disconnect();
+        }
+      };
+    },
+    [connection],
+  );
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>
+        Relay project
+      </h1>
     </div>
   );
 }
 
-export default App;
+export default memo(App);
