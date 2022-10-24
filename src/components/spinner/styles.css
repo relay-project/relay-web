@@ -1,0 +1,13 @@
+.spinner-background {
+  backdrop-filter: blur(8px) grayscale(.8) contrast(5);
+  height: 100vh;
+  left: 0;
+  opacity: 1;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+}
+.spinner-content {
+  height: 100vh;
+  padding: var(--spacer);
+}

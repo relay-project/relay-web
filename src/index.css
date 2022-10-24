@@ -13,6 +13,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --spacer: 16px;
 }
 
 a {
@@ -56,11 +58,17 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.align-items-center {
+  align-items: center;
+}
 .direction-column {
   flex-direction: column;
 }
 .flex {
   display: flex;
+}
+.justify-center {
+  justify-content: center;
 }
 
 @media (prefers-color-scheme: light) {

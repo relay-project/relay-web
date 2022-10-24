@@ -1,9 +1,22 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { ROUTING } from '../../router';
+import { useAppSelector } from '../../store/hooks';
 
 function Index(): React.ReactElement {
   const navigate = useNavigate();
+
+  const userData = useAppSelector((state) => state.user);
+
+  useEffect(
+    (): void => {
+      if (userData.id && userData.token) {
+        navigate(`/${ROUTING.home}`);
+      }
+    },
+    [],
+  );
 
   return (
     <div className="App">

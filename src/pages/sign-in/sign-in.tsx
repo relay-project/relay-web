@@ -11,6 +11,8 @@ import delay from '../../utilities/delay';
 import { EVENTS } from '../../configuration';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
+import { setUserData } from '../../store/features/user.slice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import './styles.css';
 
 interface SignInPayload {
@@ -24,6 +26,7 @@ interface SignInPayload {
 
 function SignIn(): React.ReactElement {
   const connection = useContext(SocketContext);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [formError, setFormError] = useState<string>('');
@@ -31,14 +34,34 @@ function SignIn(): React.ReactElement {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
+  const userData = useAppSelector((state) => state.user);
+
+  useEffect(
+    (): void => {
+      if (userData.id && userData.token) {
+        navigate(`/${ROUTING.home}`);
+      }
+    },
+    [],
+  );
+
   const handleResponse = (response: Response<SignInPayload>): void => {
     setLoading(false);
     if (response.status !== 200) {
+      // TODO: better error handling
       return setFormError(response.details || response.info);
     }
-    console.log(response.payload);
 
-    // TODO: store data
+    if (!response.payload) {
+      return setFormError('Something went wrong...');
+    }
+
+    const { token, user } = response.payload;
+    dispatch(setUserData({
+      ...user,
+      token,
+    }));
+
     return navigate(`/${ROUTING.home}`);
   };
 

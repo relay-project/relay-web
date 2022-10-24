@@ -7,3 +7,8 @@ export const EVENTS = {
   SIGN_UP: 'sign-up',
   UPDATE_PASSWORD: 'update-password',
 };
+
+export const ROLES = {
+  administrator: 'administrator',
+  user: 'user',
+};
