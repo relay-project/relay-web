@@ -67,10 +67,10 @@ function SignIn(): React.ReactElement {
 
   useEffect(
     (): (() => void) => {
-      connection?.on(EVENTS.SIGN_IN, handleResponse);
+      connection.on(EVENTS.SIGN_IN, handleResponse);
 
       return (): void => {
-        connection?.off(EVENTS.SIGN_IN, handleResponse);
+        connection.off(EVENTS.SIGN_IN, handleResponse);
       };
     },
     [connection],
