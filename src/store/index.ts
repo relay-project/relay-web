@@ -16,6 +16,7 @@ import spinnerReducer from './features/spinner.slice';
 import userReducer from './features/user.slice';
 
 const persistConfig = {
+  blacklist: ['spinner'],
   key: 'root',
   storage,
   version: 1,

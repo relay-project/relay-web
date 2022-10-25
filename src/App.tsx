@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
+import cuid from 'cuid';
 import { RouterProvider } from 'react-router-dom';
-import { v4 } from 'uuid';
 
 import { connection, SocketContext } from './contexts/socket.context';
 import delay from './utilities/delay';
@@ -20,7 +20,7 @@ function App(): React.ReactElement {
   useEffect(
     (): void => {
       if (!deviceId) {
-        dispatch(setDeviceId(v4()));
+        dispatch(setDeviceId(cuid()));
       }
 
       // TODO: set device name

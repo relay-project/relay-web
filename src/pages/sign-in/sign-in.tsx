@@ -121,6 +121,9 @@ function SignIn(): React.ReactElement {
       ) }
       { !loading && (
         <>
+          <h1>
+            Sign up
+          </h1>
           <form
             className="flex direction-column centered"
             onSubmit={handleSubmit}
@@ -133,6 +136,7 @@ function SignIn(): React.ReactElement {
               value={login}
             />
             <input
+              className="mt-1"
               name="password"
               onChange={handleInput}
               placeholder="Password"
@@ -140,17 +144,19 @@ function SignIn(): React.ReactElement {
               value={password}
             />
             <button
+              className="mt-1"
               type="submit"
             >
               Sign in
             </button>
           </form>
           { !!formError && (
-            <div>
+            <div className="mt-1">
               { formError }
             </div>
           ) }
           <button
+            className="mt-1"
             onClick={(): void => navigate(`/${ROUTING.signUp}`)}
             type="button"
           >

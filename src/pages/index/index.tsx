@@ -19,7 +19,7 @@ function Index(): React.ReactElement {
   );
 
   return (
-    <div className="App">
+    <div className="flex direction-column">
       <h1>
         Relay project
       </h1>
