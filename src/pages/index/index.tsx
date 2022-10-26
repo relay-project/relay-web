@@ -1,40 +1,33 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import Button from '../../components/button';
 import { ROUTING } from '../../router';
-import { useAppSelector } from '../../store/hooks';
+import useRedirect from '../../hooks/use-redirect';
+import './styles.css';
 
 function Index(): React.ReactElement {
   const navigate = useNavigate();
 
-  const userData = useAppSelector((state) => state.user);
-
-  useEffect(
-    (): void => {
-      if (userData.id && userData.token) {
-        navigate(`/${ROUTING.home}`);
-      }
-    },
-    [],
-  );
+  useRedirect(true);
 
   return (
-    <div className="flex direction-column">
-      <h1>
+    <div className="flex direction-column centered align-items-center justify-center">
+      <h1 className="title noselect">
         Relay project
       </h1>
-      <button
+      <Button
+        classes={['mt-1']}
         onClick={(): void => navigate(`/${ROUTING.signIn}`)}
-        type="button"
       >
         Sign in
-      </button>
-      <button
+      </Button>
+      <Button
+        classes={['mt-1']}
         onClick={(): void => navigate(`/${ROUTING.signUp}`)}
-        type="button"
       >
         Sign up
-      </button>
+      </Button>
     </div>
   );
 }

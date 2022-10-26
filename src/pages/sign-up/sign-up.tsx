@@ -19,6 +19,7 @@ import { ROUTING } from '../../router';
 import { setUserData } from '../../store/features/user.slice';
 import Spinner from '../../components/spinner';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import useRedirect from '../../hooks/use-redirect';
 
 interface SignUpResponse {
   token: string;
@@ -30,6 +31,8 @@ interface SignUpResponse {
 }
 
 function SignUp(): React.ReactElement {
+  useRedirect(true);
+
   const connection = useContext(SocketContext);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

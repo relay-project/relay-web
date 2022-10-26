@@ -13,6 +13,7 @@ import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
 import { setUserData } from '../../store/features/user.slice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import useRedirect from '../../hooks/use-redirect';
 import './styles.css';
 
 interface SignInPayload {
@@ -25,6 +26,8 @@ interface SignInPayload {
 }
 
 function SignIn(): React.ReactElement {
+  useRedirect(true);
+
   const connection = useContext(SocketContext);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

@@ -1,0 +1,14 @@
+.button {
+  background-color: var(--accent);
+  border-radius: var(--spacer-quarter);
+  color: var(--text);
+  font-size: calc(var(--spacer) - var(--spacer-quarter));
+  height: calc(var(--spacer) * 2);
+  min-width: calc(var(--spacer) * 8);
+  text-transform: uppercase;
+  transition: background-color 150ms ease-out;
+}
+.button:hover {
+  background-color: var(--accent-highlight);
+  transition: background-color 150ms ease-in;
+}
