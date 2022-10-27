@@ -5,8 +5,10 @@ import Button from '../../../components/button';
 import Input from '../../../components/input';
 import { ROUTING } from '../../../router';
 import Spinner from '../../../components/spinner';
+import AccountSuspendedModal from './account-suspended.modal';
 
 interface SignInLayoutProps {
+  closeModal: () => void;
   formError: string;
   handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
   handleNavigate: (destination: string) => void;
@@ -14,10 +16,12 @@ interface SignInLayoutProps {
   loading: boolean;
   login: string;
   password: string;
+  showAccountSuspendedModal: boolean;
 }
 
 function SignInLayout(props: SignInLayoutProps): React.ReactElement {
   const {
+    closeModal,
     formError,
     handleInput,
     handleNavigate,
@@ -25,12 +29,20 @@ function SignInLayout(props: SignInLayoutProps): React.ReactElement {
     loading,
     login,
     password,
+    showAccountSuspendedModal,
   } = props;
 
   return (
     <div className="auth-page">
       { loading && (
         <Spinner />
+      ) }
+      { !loading && showAccountSuspendedModal && (
+        <AccountSuspendedModal
+          closeModal={closeModal}
+          handleNavigate={handleNavigate}
+          login={login}
+        />
       ) }
       <h1 className="noselect">
         Sign in

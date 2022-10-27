@@ -2,6 +2,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const ERROR_MESSAGES = {
   accessDenied: 'Access denied!',
+  accountSuspended: 'Account suspended!',
   generic: 'Something went wrong',
   pleaseProvideTheData: 'Please provide required data!',
   providedDataIsInvalid: 'Provided data is invalid!',

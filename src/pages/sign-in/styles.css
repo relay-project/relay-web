@@ -1,0 +1,12 @@
+.modal {
+  background-color: var(--background-dark);
+  border-radius: var(--spacer-quarter);
+  padding: calc(var(--spacer) * 2);
+  height: calc(var(--spacer) * 15);
+  width: calc(var(--spacer) * 25);
+}
+.modal-title {
+  color: var(--error-light);
+  font-size: calc(var(--spacer) + var(--spacer-quarter));
+  font-weight: 200;
+}

@@ -41,6 +41,7 @@ function SignIn(): React.ReactElement {
   const [loading, setLoading] = useState<boolean>(false);
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showAccountSuspendedModal, setShowAccountSuspendedModal] = useState<boolean>(false);
 
   const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
     const { currentTarget: { name = '', value = '' } = {} } = event;
@@ -56,6 +57,40 @@ function SignIn(): React.ReactElement {
       return navigate(-1);
     }
     return navigate(destination);
+  };
+
+  const handleResponse = (response: Response<SignInPayload>): void => {
+    setLoading(false);
+    if (response.status > 299) {
+      if (response.info === RESPONSE_MESSAGES.VALIDATION_ERROR
+        && response.status === 400) {
+        return setFormError(
+          response.details
+            ? formatErrorDetails(response.details)
+            : ERROR_MESSAGES.providedDataIsInvalid,
+        );
+      }
+      if (response.status === 401) {
+        return setFormError(ERROR_MESSAGES.accessDenied);
+      }
+      if (response.status === 403) {
+        setFormError(ERROR_MESSAGES.accountSuspended);
+        return setShowAccountSuspendedModal(true);
+      }
+      return setFormError(ERROR_MESSAGES.generic);
+    }
+
+    if (!response.payload) {
+      return setFormError(ERROR_MESSAGES.generic);
+    }
+
+    const { token, user } = response.payload;
+    dispatch(setUserData({
+      ...user,
+      token,
+    }));
+
+    return navigate(`/${ROUTING.home}`);
   };
 
   const handleSubmit = useCallback(
@@ -87,39 +122,6 @@ function SignIn(): React.ReactElement {
     ],
   );
 
-  const handleResponse = (response: Response<SignInPayload>): void => {
-    setLoading(false);
-    if (response.status > 299) {
-      if (response.info === RESPONSE_MESSAGES.VALIDATION_ERROR
-        && response.status === 400) {
-        return setFormError(
-          response.details
-            ? formatErrorDetails(response.details)
-            : ERROR_MESSAGES.providedDataIsInvalid,
-        );
-      }
-      if (response.status === 401) {
-        return setFormError(ERROR_MESSAGES.accessDenied);
-      }
-      if (response.status === 403) {
-        return navigate(`/${ROUTING.recovery}`);
-      }
-      return setFormError(ERROR_MESSAGES.generic);
-    }
-
-    if (!response.payload) {
-      return setFormError(ERROR_MESSAGES.generic);
-    }
-
-    const { token, user } = response.payload;
-    dispatch(setUserData({
-      ...user,
-      token,
-    }));
-
-    return navigate(`/${ROUTING.home}`);
-  };
-
   useEffect(
     (): (() => void) => {
       connection.on(EVENTS.SIGN_IN, handleResponse);
@@ -133,6 +135,7 @@ function SignIn(): React.ReactElement {
 
   return (
     <SignInLayout
+      closeModal={(): void => setShowAccountSuspendedModal(false)}
       formError={formError}
       handleInput={handleInput}
       handleNavigate={handleNavigate}
@@ -140,6 +143,7 @@ function SignIn(): React.ReactElement {
       loading={loading}
       login={login}
       password={password}
+      showAccountSuspendedModal={showAccountSuspendedModal}
     />
   );
 }

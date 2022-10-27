@@ -79,12 +79,18 @@ input {
 .justify-center {
   justify-content: center;
 }
+.justify-space-between {
+  justify-content: space-between;
+}
 
 .mt-1 {
   margin-top: var(--spacer);
 }
 .mt-2 {
   margin-top: calc(var(--spacer) * 2);
+}
+.text-center {
+  text-align: center;
 }
 
 .noselect {
