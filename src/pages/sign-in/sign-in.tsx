@@ -8,14 +8,18 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 
 import delay from '../../utilities/delay';
-import { EVENTS } from '../../configuration';
+import {
+  ERROR_MESSAGES,
+  EVENTS,
+  RESPONSE_MESSAGES,
+} from '../../configuration';
+import formatErrorDetails from '../../utilities/format-error-details';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
 import { setUserData } from '../../store/features/user.slice';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import useRedirect from '../../hooks/use-redirect';
-import './styles.css';
 import SignInLayout from './components/sign-in.layout';
+import { useAppDispatch } from '../../store/hooks';
+import useRedirect from '../../hooks/use-redirect';
 
 interface SignInPayload {
   token: string;
@@ -38,26 +42,73 @@ function SignIn(): React.ReactElement {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  const userData = useAppSelector((state) => state.user);
+  const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
+    const { currentTarget: { name = '', value = '' } = {} } = event;
+    setFormError('');
+    if (name === 'login') {
+      return setLogin(value);
+    }
+    return setPassword(value);
+  };
 
-  useEffect(
-    (): void => {
-      if (userData.id && userData.token) {
-        navigate(`/${ROUTING.home}`);
+  const handleNavigate = (destination: string): void => {
+    if (destination === 'back') {
+      return navigate(-1);
+    }
+    return navigate(destination);
+  };
+
+  const handleSubmit = useCallback(
+    async (
+      event: React.FormEvent<HTMLFormElement>,
+    ): Promise<typeof connection | void> => {
+      event.preventDefault();
+
+      const trimmedLogin = (login || '').trim();
+      const trimmedPassword = (password || '').trim();
+      if (!(trimmedLogin && trimmedPassword)) {
+        return setFormError(ERROR_MESSAGES.pleaseProvideTheData);
       }
+
+      setLoading(true);
+      await delay();
+
+      return connection?.emit(
+        EVENTS.SIGN_IN,
+        {
+          login: trimmedLogin,
+          password: trimmedPassword,
+        },
+      );
     },
-    [],
+    [
+      login,
+      password,
+    ],
   );
 
   const handleResponse = (response: Response<SignInPayload>): void => {
     setLoading(false);
-    if (response.status !== 200) {
-      // TODO: better error handling
-      return setFormError(response.details || response.info);
+    if (response.status > 299) {
+      if (response.info === RESPONSE_MESSAGES.VALIDATION_ERROR
+        && response.status === 400) {
+        return setFormError(
+          response.details
+            ? formatErrorDetails(response.details)
+            : ERROR_MESSAGES.providedDataIsInvalid,
+        );
+      }
+      if (response.status === 401) {
+        return setFormError(ERROR_MESSAGES.accessDenied);
+      }
+      if (response.status === 403) {
+        return navigate(`/${ROUTING.recovery}`);
+      }
+      return setFormError(ERROR_MESSAGES.generic);
     }
 
     if (!response.payload) {
-      return setFormError('Something went wrong...');
+      return setFormError(ERROR_MESSAGES.generic);
     }
 
     const { token, user } = response.payload;
@@ -79,49 +130,6 @@ function SignIn(): React.ReactElement {
     },
     [connection],
   );
-
-  const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
-    const { currentTarget: { name = '', value = '' } = {} } = event;
-    setFormError('');
-    if (name === 'login') {
-      return setLogin(value);
-    }
-    return setPassword(value);
-  };
-
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>): Promise<typeof connection | void> => {
-      event.preventDefault();
-
-      const trimmedLogin = (login || '').trim();
-      const trimmedPassword = (password || '').trim();
-      if (!(trimmedLogin && trimmedPassword)) {
-        return setFormError('Please enter your login and password!');
-      }
-
-      setLoading(true);
-      await delay();
-
-      return connection?.emit(
-        EVENTS.SIGN_IN,
-        {
-          login,
-          password,
-        },
-      );
-    },
-    [
-      login,
-      password,
-    ],
-  );
-
-  const handleNavigate = (destination: string): void => {
-    if (destination === 'back') {
-      return navigate(-1);
-    }
-    return navigate(destination);
-  };
 
   return (
     <SignInLayout

@@ -11,6 +11,7 @@ import delay from '../../utilities/delay';
 import {
   EVENTS,
   MAX_LOGIN_LENGTH,
+  MAX_PASSWORD_LENGTH,
   MAX_RECOVERY_ANSWER_LENGTH,
   MAX_RECOVERY_QUESTION_LENGTH,
 } from '../../configuration';
@@ -59,7 +60,7 @@ function SignUp(): React.ReactElement {
 
   const handleResponse = (response: Response<SignUpResponse>): void => {
     setLoading(false);
-    if (response.status !== 200) {
+    if (response.status > 299) {
       // TODO: better error handling
       return setFormError(response.details || response.info);
     }
@@ -92,7 +93,12 @@ function SignUp(): React.ReactElement {
     const { currentTarget: { name = '', value = '' } = {} } = event;
     setFormError('');
     if (name === 'confirmPassword') {
-      return setConfirmPassword(value);
+      return setConfirmPassword((state: string): string => {
+        if (state.length <= MAX_PASSWORD_LENGTH) {
+          return value;
+        }
+        return state;
+      });
     }
     if (name === 'login') {
       return setLogin((state: string): string => {
@@ -103,7 +109,12 @@ function SignUp(): React.ReactElement {
       });
     }
     if (name === 'password') {
-      return setPassword(value);
+      return setPassword((state: string): string => {
+        if (state.length <= MAX_PASSWORD_LENGTH) {
+          return value;
+        }
+        return state;
+      });
     }
     if (name === 'recoveryAnswer') {
       return setRecoveryAnswer((state: string): string => {
@@ -125,6 +136,7 @@ function SignUp(): React.ReactElement {
     async (event: React.FormEvent<HTMLFormElement>): Promise<typeof connection | void> => {
       event.preventDefault();
 
+      const trimmedConfirmPassword = (confirmPassword || '').trim();
       const trimmedLogin = (login || '').trim();
       const trimmedPassword = (password || '').trim();
       const trimmedRecoveryAnswer = (recoveryAnswer || '').trim();
@@ -132,6 +144,10 @@ function SignUp(): React.ReactElement {
       if (!(trimmedLogin && trimmedPassword
         && trimmedRecoveryAnswer && trimmedRecoveryQuestion)) {
         return setFormError('Please provide required data!');
+      }
+
+      if (trimmedConfirmPassword !== trimmedPassword) {
+        return setFormError('Password conirmation is invalid!');
       }
 
       setLoading(true);
@@ -150,6 +166,7 @@ function SignUp(): React.ReactElement {
       );
     },
     [
+      confirmPassword,
       deviceData,
       login,
       password,

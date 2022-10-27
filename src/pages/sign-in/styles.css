@@ -1,9 +1,0 @@
-.centered {
-  height: 100vh;
-  min-width: calc(var(--spacer) * 20);
-  padding: var(--spacer) 0;
-  width: 100%; 
-}
-.form {
-  min-width: calc(var(--spacer) * 20);
-}

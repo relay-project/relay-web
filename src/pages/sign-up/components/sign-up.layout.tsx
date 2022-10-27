@@ -5,7 +5,6 @@ import Button from '../../../components/button';
 import Input from '../../../components/input';
 import { ROUTING } from '../../../router';
 import Spinner from '../../../components/spinner';
-import '../styles.css';
 
 interface SignUpLayoutProps {
   confirmPassword: string;

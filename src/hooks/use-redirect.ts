@@ -12,7 +12,12 @@ export default function useRedirect(redirectIfAuthorized = false): void {
   useEffect(
     (): void => {
       if (token) {
-        navigate(`/${redirectIfAuthorized ? ROUTING.home : ''}`);
+        navigate(
+          `/${redirectIfAuthorized ? ROUTING.home : ''}`,
+          {
+            replace: true,
+          },
+        );
       }
     },
     [],
