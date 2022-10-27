@@ -24,10 +24,13 @@ function AccountSuspendedModal(props: AccountSuspendedModalProps): React.ReactEl
         <div className="modal-title text-center">
           Your account has been suspended!
         </div>
+        <div className="modal-text text-center">
+          Your account has been suspended due to a large amount of failed sign in attempts
+        </div>
         <div className="flex align-items-center justify-space-between">
           <Button
+            classes={['button-negative']}
             handleClick={closeModal}
-            isLink
           >
             Cancel
           </Button>

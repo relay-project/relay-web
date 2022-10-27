@@ -83,6 +83,13 @@ input {
   justify-content: space-between;
 }
 
+.button-negative {
+  background-color: var(--error);
+}
+.button-negative:hover {
+  background-color: var(--error-light);
+}
+
 .mt-1 {
   margin-top: var(--spacer);
 }

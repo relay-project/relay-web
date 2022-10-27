@@ -29,6 +29,10 @@ export default createBrowserRouter([
     path: `/${ROUTING.recovery}`,
   },
   {
+    element: <Recovery />,
+    path: `/${ROUTING.recovery}/:login`,
+  },
+  {
     element: <SignIn />,
     path: `/${ROUTING.signIn}`,
   },

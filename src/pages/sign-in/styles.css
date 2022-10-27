@@ -5,6 +5,11 @@
   height: calc(var(--spacer) * 15);
   width: calc(var(--spacer) * 25);
 }
+.modal-text {
+  color: var(--text);
+  font-size: calc(var(--spacer));
+  font-weight: 300;
+}
 .modal-title {
   color: var(--error-light);
   font-size: calc(var(--spacer) + var(--spacer-quarter));

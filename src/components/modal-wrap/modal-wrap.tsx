@@ -10,9 +10,7 @@ function ModalWrap(props: ModalWrapProps): React.ReactElement {
   const { children } = props;
 
   return (
-    <div
-      className="flex align-items-center justify-center modal-wrap"
-    >
+    <div className="flex align-items-center justify-center modal-wrap">
       { children }
     </div>
   );
