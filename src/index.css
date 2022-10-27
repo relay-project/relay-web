@@ -2,8 +2,11 @@
   --accent: #6210f1;
   --accent-highlight: #9050ff;
   --background: #252525;
+  --background-dark: #121212;
   --background-inverted: #FCFCFC;
+  --background-light: #696969;
   --error: #AF4261;
+  --error-light: #ff1658;
   --spacer: 16px;
   --spacer-half: 8px;
   --spacer-quarter: 4px;
@@ -21,6 +24,16 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+::selection {
+  color: var(--text);
+  background: var(--accent);
+}
+::-moz-selection {
+  color: var(--text);
+  background: var(--accent);
+}
+
 
 html, body {
   background-color: var(--background);
@@ -43,9 +56,6 @@ button {
   cursor: pointer;
   font-size: var(--spacer);
   outline: none;
-}
-button:hover {
-  background-color: var(--accent-highlight);
 }
 
 h1 {
@@ -73,6 +83,9 @@ input {
 .mt-1 {
   margin-top: var(--spacer);
 }
+.mt-2 {
+  margin-top: calc(var(--spacer) * 2);
+}
 
 .noselect {
   -webkit-touch-callout: none;
@@ -80,4 +93,25 @@ input {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.auth-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  min-width: calc(var(--spacer) * 20);
+  padding: var(--spacer) 0;
+  width: 100%; 
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  min-width: calc(var(--spacer) * 20);
+}
+.auth-error {
+  color: var(--error-light);
+  height: calc(var(--spacer) * 2);
+  opacity: 1;
 }

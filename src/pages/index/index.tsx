@@ -17,14 +17,14 @@ function Index(): React.ReactElement {
         Relay project
       </h1>
       <Button
-        classes={['mt-1']}
-        onClick={(): void => navigate(`/${ROUTING.signIn}`)}
+        classes={['mt-2']}
+        handleClick={(): void => navigate(`/${ROUTING.signIn}`)}
       >
         Sign in
       </Button>
       <Button
-        classes={['mt-1']}
-        onClick={(): void => navigate(`/${ROUTING.signUp}`)}
+        classes={['mt-2']}
+        handleClick={(): void => navigate(`/${ROUTING.signUp}`)}
       >
         Sign up
       </Button>

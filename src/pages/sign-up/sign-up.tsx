@@ -17,7 +17,7 @@ import {
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
 import { setUserData } from '../../store/features/user.slice';
-import Spinner from '../../components/spinner';
+import SignUpLayout from './components/sign-up.layout';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 
@@ -49,6 +49,7 @@ function SignUp(): React.ReactElement {
     [],
   );
 
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [login, setLogin] = useState<string>('');
@@ -90,6 +91,9 @@ function SignUp(): React.ReactElement {
   const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
     const { currentTarget: { name = '', value = '' } = {} } = event;
     setFormError('');
+    if (name === 'confirmPassword') {
+      return setConfirmPassword(value);
+    }
     if (name === 'login') {
       return setLogin((state: string): string => {
         if (state.length <= MAX_LOGIN_LENGTH) {
@@ -125,18 +129,19 @@ function SignUp(): React.ReactElement {
       const trimmedPassword = (password || '').trim();
       const trimmedRecoveryAnswer = (recoveryAnswer || '').trim();
       const trimmedRecoveryQuestion = (recoveryQuestion || '').trim();
-      if (!(trimmedLogin && trimmedPassword)) {
-        return setFormError('Please enter your login and password!');
+      if (!(trimmedLogin && trimmedPassword
+        && trimmedRecoveryAnswer && trimmedRecoveryQuestion)) {
+        return setFormError('Please provide required data!');
       }
 
       setLoading(true);
       await delay();
 
-      return connection?.emit(
+      return connection.emit(
         EVENTS.SIGN_UP,
         {
           deviceId: deviceData.deviceId,
-          deviceName: deviceData.deviceName || 'test', // TODO: fix
+          deviceName: deviceData.deviceName || deviceData.deviceId, // TODO: fix
           login: trimmedLogin,
           password: trimmedPassword,
           recoveryAnswer: trimmedRecoveryAnswer,
@@ -153,69 +158,26 @@ function SignUp(): React.ReactElement {
     ],
   );
 
+  const handleNavigate = (destination: string): void => {
+    if (destination === 'back') {
+      return navigate(-1);
+    }
+    return navigate(destination);
+  };
+
   return (
-    <div className="flex direction-column">
-      { loading && (
-        <Spinner />
-      ) }
-      <h1>
-        Sign up
-      </h1>
-      <form
-        className="flex direction-column"
-        onSubmit={handleSubmit}
-      >
-        <input
-          name="login"
-          onChange={handleInput}
-          placeholder="Login"
-          type="text"
-          value={login}
-        />
-        <input
-          className="mt-1"
-          name="password"
-          onChange={handleInput}
-          placeholder="Password"
-          type="password"
-          value={password}
-        />
-        <input
-          className="mt-1"
-          name="recoveryQuestion"
-          onChange={handleInput}
-          placeholder="Account recovery question"
-          type="text"
-          value={recoveryQuestion}
-        />
-        <input
-          className="mt-1"
-          name="recoveryAnswer"
-          onChange={handleInput}
-          placeholder="Account recovery answer"
-          type="text"
-          value={recoveryAnswer}
-        />
-        <button
-          className="mt-1"
-          type="submit"
-        >
-          Sign up
-        </button>
-      </form>
-      { formError && (
-        <div className="mt-1">
-          { formError }
-        </div>
-      ) }
-      <button
-        className="mt-1"
-        onClick={(): void => navigate(`/${ROUTING.signIn}`)}
-        type="button"
-      >
-        Sign into existing account
-      </button>
-    </div>
+    <SignUpLayout
+      confirmPassword={confirmPassword}
+      formError={formError}
+      handleInput={handleInput}
+      handleNavigate={handleNavigate}
+      handleSubmit={handleSubmit}
+      loading={loading}
+      login={login}
+      password={password}
+      recoveryAnswer={recoveryAnswer}
+      recoveryQuestion={recoveryQuestion}
+    />
   );
 }
 

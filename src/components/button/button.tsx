@@ -6,8 +6,9 @@ interface ButtonProps {
   children: React.ReactNode;
   classes?: string[];
   disabled?: boolean;
+  handleClick?: () => void;
+  isLink?: boolean;
   isSubmit?: boolean;
-  onClick?: () => void;
 }
 
 function Button(props: ButtonProps): React.ReactElement {
@@ -15,23 +16,27 @@ function Button(props: ButtonProps): React.ReactElement {
     children,
     classes,
     disabled,
+    handleClick,
+    isLink,
     isSubmit,
-    onClick,
   } = props;
 
   const classesString = classes && classes.length > 0
     ? classes.join(' ')
     : '';
 
+  const onClick = (): null | void => {
+    if (!isSubmit && handleClick) {
+      return handleClick();
+    }
+    return null;
+  };
+
   return (
     <button
-      className={`button noselect ${classesString}`}
+      className={`${isLink ? 'link' : 'button'} noselect ${classesString}`}
       disabled={disabled}
-      onClick={
-        isSubmit
-          ? onClick
-          : (): null => null
-      }
+      onClick={onClick}
       type={
         isSubmit
           ? 'submit'
@@ -46,8 +51,9 @@ function Button(props: ButtonProps): React.ReactElement {
 Button.defaultProps = {
   classes: [],
   disabled: false,
+  handleClick: null,
+  isLink: false,
   isSubmit: false,
-  onClick: null,
 };
 
 export default memo(Button);

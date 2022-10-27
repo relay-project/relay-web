@@ -15,6 +15,7 @@ import { setUserData } from '../../store/features/user.slice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 import './styles.css';
+import SignInLayout from './components/sign-in.layout';
 
 interface SignInPayload {
   token: string;
@@ -115,59 +116,23 @@ function SignIn(): React.ReactElement {
     ],
   );
 
+  const handleNavigate = (destination: string): void => {
+    if (destination === 'back') {
+      return navigate(-1);
+    }
+    return navigate(destination);
+  };
+
   return (
-    <div className="flex direction-column">
-      { loading && (
-        <h1>
-          Loading...
-        </h1>
-      ) }
-      { !loading && (
-        <>
-          <h1>
-            Sign up
-          </h1>
-          <form
-            className="flex direction-column centered"
-            onSubmit={handleSubmit}
-          >
-            <input
-              name="login"
-              onChange={handleInput}
-              placeholder="Login"
-              type="text"
-              value={login}
-            />
-            <input
-              className="mt-1"
-              name="password"
-              onChange={handleInput}
-              placeholder="Password"
-              type="password"
-              value={password}
-            />
-            <button
-              className="mt-1"
-              type="submit"
-            >
-              Sign in
-            </button>
-          </form>
-          { !!formError && (
-            <div className="mt-1">
-              { formError }
-            </div>
-          ) }
-          <button
-            className="mt-1"
-            onClick={(): void => navigate(`/${ROUTING.signUp}`)}
-            type="button"
-          >
-            Create account
-          </button>
-        </>
-      ) }
-    </div>
+    <SignInLayout
+      formError={formError}
+      handleInput={handleInput}
+      handleNavigate={handleNavigate}
+      handleSubmit={handleSubmit}
+      loading={loading}
+      login={login}
+      password={password}
+    />
   );
 }
 
