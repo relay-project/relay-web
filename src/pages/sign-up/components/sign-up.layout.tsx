@@ -5,13 +5,19 @@ import Button from '../../../components/button';
 import Input from '../../../components/input';
 import { ROUTING } from '../../../router';
 import Spinner from '../../../components/spinner';
+import Textarea from '../../../components/textarea';
 
 interface SignUpLayoutProps {
   confirmPassword: string;
+  deviceName: string;
   formError: string;
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
+  handleInput: (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   handleNavigate: (destination: string) => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<Socket | void>;
+  handleSubmit: (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => Promise<Socket | void>;
   loading: boolean;
   login: string;
   password: string;
@@ -22,6 +28,7 @@ interface SignUpLayoutProps {
 function SignUpLayout(props: SignUpLayoutProps): React.ReactElement {
   const {
     confirmPassword,
+    deviceName,
     formError,
     handleInput,
     handleNavigate,
@@ -46,6 +53,7 @@ function SignUpLayout(props: SignUpLayoutProps): React.ReactElement {
         onSubmit={handleSubmit}
       >
         <Input
+          disabled={loading}
           name="login"
           handleInput={handleInput}
           placeholder="Login"
@@ -54,8 +62,8 @@ function SignUpLayout(props: SignUpLayoutProps): React.ReactElement {
         <Input
           classes={['mt-1']}
           disabled={loading}
-          name="password"
           handleInput={handleInput}
+          name="password"
           placeholder="Password"
           type="password"
           value={password}
@@ -63,45 +71,57 @@ function SignUpLayout(props: SignUpLayoutProps): React.ReactElement {
         <Input
           classes={['mt-1']}
           disabled={loading}
-          name="confirmPassword"
           handleInput={handleInput}
+          name="confirmPassword"
           placeholder="Confirm password"
           type="password"
           value={confirmPassword}
         />
-        <Input
+        <Textarea
           classes={['mt-1']}
           disabled={loading}
-          name="recoveryQuestion"
           handleInput={handleInput}
+          name="recoveryQuestion"
           placeholder="Account recovery question"
           value={recoveryQuestion}
         />
-        <Input
+        <Textarea
           classes={['mt-1']}
           disabled={loading}
-          name="recoveryAnswer"
           handleInput={handleInput}
+          name="recoveryAnswer"
           placeholder="Account recovery answer"
           value={recoveryAnswer}
         />
-        <Button
+        <Input
           classes={['mt-1']}
+          disabled={loading}
+          handleInput={handleInput}
+          name="deviceName"
+          placeholder="Device name"
+          value={deviceName}
+        />
+        <div className="flex align-items-center justify-center auth-error noselect">
+          { formError && (
+            <span className="fade-in">
+              { formError }
+            </span>
+          ) }
+        </div>
+        <Button
+          disabled={loading}
           isSubmit
         >
           Sign up
         </Button>
       </form>
-      <div className="flex align-items-center auth-error mt-1 noselect">
-        { formError }
-      </div>
       <Button
         classes={['mt-1']}
         disabled={loading}
         handleClick={(): void => handleNavigate(`/${ROUTING.signIn}`)}
         isLink
       >
-        I have an account
+        I already have an account
       </Button>
       <Button
         classes={['mt-1']}

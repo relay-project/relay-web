@@ -86,11 +86,16 @@ function SignIn(): React.ReactElement {
 
     const { token, user } = response.payload;
     dispatch(setUserData({
-      ...user,
       token,
+      ...user,
     }));
 
-    return navigate(`/${ROUTING.home}`);
+    return navigate(
+      `/${ROUTING.home}`,
+      {
+        replace: true,
+      },
+    );
   };
 
   const handleSubmit = useCallback(
