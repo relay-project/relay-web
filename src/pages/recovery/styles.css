@@ -1,10 +1,13 @@
-.question-title {
-  color: var(--accent);
-  font-size: calc(var(--spacer) + var(--spacer-quarter));
-  font-weight: 400;
-}
-.question-text {
+.question-text, .success-text {
   color: var(--text);
   font-size: var(--spacer);
   font-weight: 300;
+}
+.question-title, .success-title {
+  color: var(--accent);
+  font-size: calc(var(--spacer) + var(--spacer-quarter));
+  font-weight: 300;
+}
+.success-title {
+  color: var(--success);
 }

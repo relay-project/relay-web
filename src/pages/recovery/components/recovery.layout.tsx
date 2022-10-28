@@ -1,16 +1,20 @@
 import React, { memo } from 'react';
+import { type Socket } from 'socket.io-client';
 
 import Spinner from '../../../components/spinner';
 import Stage1Form from './stage-1.form';
 import Stage2Form from './stage-2.form';
+import Stage3Layout from './stage-3.layout';
 
 interface RecoveryLayoutProps {
   confirmPassword: string;
   formError: string;
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
+  handleInput: (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   handleNavigate: (destination: string) => void;
-  handleStage1: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
-  handleStage2: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  handleStage1: (event: React.FormEvent<HTMLFormElement>) => Promise<Socket | void>;
+  handleStage2: (event: React.FormEvent<HTMLFormElement>) => Promise<Socket | void>;
   loading: boolean;
   login: string;
   password: string;
@@ -65,6 +69,9 @@ function RecoveryLayout(props: RecoveryLayoutProps): React.ReactElement {
           recoveryAnswer={recoveryAnswer}
           recoveryQuestion={recoveryQuestion}
         />
+      ) }
+      { stage === 3 && (
+        <Stage3Layout handleNavigate={handleNavigate} />
       ) }
     </div>
   );

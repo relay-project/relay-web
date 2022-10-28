@@ -113,7 +113,7 @@ function SignIn(): React.ReactElement {
       setLoading(true);
       await delay();
 
-      return connection?.emit(
+      return connection.emit(
         EVENTS.SIGN_IN,
         {
           login: trimmedLogin,

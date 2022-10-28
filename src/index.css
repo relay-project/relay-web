@@ -10,6 +10,8 @@
   --spacer: 16px;
   --spacer-half: 8px;
   --spacer-quarter: 4px;
+  --success: #61AF42;
+  --success-light: #3bd000;
   --text: #FCFCFC;
   --text-inverted: #252525;
 }
@@ -88,6 +90,12 @@ input, textarea {
 }
 .button-negative:hover {
   background-color: var(--error-light);
+}
+.button-positive {
+  background-color: var(--success);
+}
+.button-positive:hover {
+  background-color: var(--success-light);
 }
 
 @keyframes fade-in {

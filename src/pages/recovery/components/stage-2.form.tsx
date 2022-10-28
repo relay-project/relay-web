@@ -1,15 +1,21 @@
 import React, { memo } from 'react';
+import { type Socket } from 'socket.io-client';
 
 import Button from '../../../components/button';
 import Input from '../../../components/input';
+import Textarea from '../../../components/textarea';
 import '../styles.css';
 
 interface Stage2FormProps {
   confirmPassword: string;
   formError: string;
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
+  handleInput: (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   handleNavigate: (destination: string) => void;
-  handleStage2: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  handleStage2: (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => Promise<Socket | void>;
   loading: boolean;
   password: string;
   recoveryAnswer: string;
@@ -41,7 +47,7 @@ function Stage2Form(props: Stage2FormProps): React.ReactElement {
         className="auth-form mt-1"
         onSubmit={handleStage2}
       >
-        <Input
+        <Textarea
           disabled={loading}
           handleInput={handleInput}
           name="recoveryAnswer"

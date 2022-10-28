@@ -1,13 +1,18 @@
 import React, { memo } from 'react';
+import { type Socket } from 'socket.io-client';
 
 import Button from '../../../components/button';
 import Input from '../../../components/input';
 
 interface Stage1FormProps {
   formError: string;
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
+  handleInput: (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   handleNavigate: (destination: string) => void;
-  handleStage1: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  handleStage1: (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => Promise<Socket | void>;
   login: string;
   loading: boolean;
 }
