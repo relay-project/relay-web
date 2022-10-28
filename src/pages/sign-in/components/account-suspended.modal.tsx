@@ -20,7 +20,7 @@ function AccountSuspendedModal(props: AccountSuspendedModalProps): React.ReactEl
 
   return (
     <ModalWrap>
-      <div className="flex direction-column justify-space-between modal">
+      <div className="flex direction-column justify-space-between modal noselect">
         <div className="modal-title text-center">
           Your account has been suspended!
         </div>

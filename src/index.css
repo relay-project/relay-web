@@ -90,6 +90,18 @@ input {
   background-color: var(--error-light);
 }
 
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 150ms linear;
+  opacity: 1;
+}
 .mt-1 {
   margin-top: var(--spacer);
 }
@@ -125,6 +137,6 @@ input {
 }
 .auth-error {
   color: var(--error-light);
-  height: calc(var(--spacer) * 2);
+  height: calc(var(--spacer) * 3);
   opacity: 1;
 }

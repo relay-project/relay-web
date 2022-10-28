@@ -67,17 +67,20 @@ function SignInLayout(props: SignInLayoutProps): React.ReactElement {
           type="password"
           value={password}
         />
+        <div className="flex align-items-center justify-center auth-error noselect">
+          { formError && (
+            <span className="fade-in">
+              { formError }
+            </span>
+          ) }
+        </div>
         <Button
-          classes={['mt-1']}
           disabled={loading}
           isSubmit
         >
           Sign in
         </Button>
       </form>
-      <div className="flex align-items-center auth-error mt-1 noselect">
-        { formError }
-      </div>
       <Button
         classes={['mt-1']}
         disabled={loading}
