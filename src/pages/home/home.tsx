@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import delay from '../../utilities/delay';
 import { deleteUserData } from '../../store/features/user.slice';
 import { EVENTS } from '../../configuration';
+import HomeLayout from './components/home.layout';
 import { SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
@@ -55,25 +56,10 @@ function Home(): React.ReactElement {
   );
 
   return (
-    <div className="flex direction-column">
-      <h1>
-        Home
-      </h1>
-      <button
-        className="mt-1"
-        onClick={handleLogout}
-        type="button"
-      >
-        Logout
-      </button>
-      <button
-        className="mt-1"
-        onClick={handleCompleteLogout}
-        type="button"
-      >
-        Complete logout
-      </button>
-    </div>
+    <HomeLayout
+      handleCompleteLogout={handleCompleteLogout}
+      handleLogout={handleLogout}
+    />
   );
 }
 

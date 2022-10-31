@@ -19,6 +19,7 @@ export const ERROR_MESSAGES = {
 export const EVENTS = {
   COMPLETE_LOGOUT: 'complete-logout',
   CONNECT: 'connect',
+  DELETE_ACCOUNT: 'delete-account',
   RECOVERY_FINAL_STAGE: 'recovery-final-stage',
   RECOVERY_INITIAL_STAGE: 'recovery-inital-stage',
   SIGN_IN: 'sign-in',
