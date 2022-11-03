@@ -11,9 +11,17 @@ export default function useRedirect(redirectIfAuthorized = false): void {
 
   useEffect(
     (): void => {
-      if (token) {
+      if (token && redirectIfAuthorized) {
         navigate(
-          `/${redirectIfAuthorized ? ROUTING.home : ''}`,
+          `/${ROUTING.home}`,
+          {
+            replace: true,
+          },
+        );
+      }
+      if (!token && !redirectIfAuthorized) {
+        navigate(
+          `/${ROUTING.signIn}`,
           {
             replace: true,
           },

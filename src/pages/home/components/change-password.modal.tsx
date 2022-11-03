@@ -1,27 +1,83 @@
-import React, { memo } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 import Button from '../../../components/button';
+import { EVENTS, MAX_PASSWORD_LENGTH } from '../../../configuration';
 import Input from '../../../components/input';
 import ModalWrap from '../../../components/modal-wrap';
+import { type Response, SocketContext } from '../../../contexts/socket.context';
 
 interface ChangePasswordModalProps {
-  confirmNewPassword: string;
-  closeModal: () => void;
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
-  newPassword: string;
-  oldPassword: string;
+  toggleModal: () => void;
 }
 
 function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElement {
-  const {
-    closeModal,
-    confirmNewPassword,
-    handleInput,
-    handleSubmit,
-    newPassword,
-    oldPassword,
-  } = props;
+  const { toggleModal } = props;
+
+  const connection = useContext(SocketContext);
+
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+  const [formError, setFormError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [oldPassword, setOldPassword] = useState<string>('');
+
+  const handleInput = (
+    event: React.FormEvent<HTMLInputElement>,
+  ): void => {
+    const { currentTarget: { name = '', value = '' } = {} } = event;
+    setFormError('');
+    if (name === 'confirmNewPassword') {
+      return setConfirmNewPassword((state: string): string => {
+        if (state.length <= MAX_PASSWORD_LENGTH) {
+          return value;
+        }
+        return state;
+      });
+    }
+    if (name === 'newPassword') {
+      return setNewPassword((state: string): string => {
+        if (state.length <= MAX_PASSWORD_LENGTH) {
+          return value;
+        }
+        return state;
+      });
+    }
+    return setOldPassword(value);
+  };
+
+  const handleResponse = (): void => {
+
+  };
+
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+      event.preventDefault();
+
+      setLoading(true);
+    },
+    [
+      confirmNewPassword,
+      newPassword,
+      oldPassword,
+    ],
+  );
+
+  useEffect(
+    (): (() => void) => {
+      connection.on(EVENTS.COMPLETE_LOGOUT, handleResponse);
+
+      return (): void => {
+        connection.off(EVENTS.COMPLETE_LOGOUT, handleResponse);
+      };
+    },
+    [connection],
+  );
 
   return (
     <ModalWrap>
@@ -30,31 +86,54 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
         onSubmit={handleSubmit}
       >
         <h1>
-          Modal
+          Change password
         </h1>
         <Input
+          classes={['mt-1']}
+          disabled={loading}
           handleInput={handleInput}
-          name="Your current password"
+          name="oldPassword"
+          placeholder="Your current password"
           type="password"
           value={oldPassword}
         />
         <Input
+          classes={['mt-1']}
+          disabled={loading}
           handleInput={handleInput}
-          name="New password"
+          name="newPassword"
+          placeholder="New password"
           type="password"
           value={newPassword}
         />
         <Input
+          classes={['mt-1']}
+          disabled={loading}
           handleInput={handleInput}
-          name="Confirm new password"
+          name="confirmNewPassword"
+          placeholder="Confirm new password"
           type="password"
           value={confirmNewPassword}
         />
-        <Button handleClick={closeModal}>
-          Cancel
-        </Button>
-        <Button isSubmit>
+        <div className="flex align-items-center justify-center auth-error noselect">
+          { formError && (
+            <span className="fade-in">
+              { formError }
+            </span>
+          ) }
+        </div>
+        <Button
+          disabled={loading}
+          isSubmit
+        >
           Submit
+        </Button>
+        <Button
+          disabled={loading}
+          classes={['mt-1']}
+          handleClick={toggleModal}
+        >
+          Cancel
         </Button>
       </form>
     </ModalWrap>
