@@ -66,6 +66,7 @@ function Home(): React.ReactElement {
       showChangePasswordModal={showChangePasswordModal}
       showUpdateRecoveryModal={showUpdateRecoveryModal}
       toggleModal={toggleModal}
+      token={token}
     />
   );
 }

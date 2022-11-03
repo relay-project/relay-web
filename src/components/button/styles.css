@@ -2,15 +2,16 @@
   background-color: var(--accent);
   border-radius: var(--spacer-quarter);
   color: var(--text);
+  filter: saturate(.5);
   font-size: calc(var(--spacer) - var(--spacer-quarter));
   height: calc(var(--spacer) * 2);
   min-width: calc(var(--spacer) * 8);
   text-transform: uppercase;
-  transition: background-color 150ms ease-out;
+  transition: filter var(--transition) ease-out;
 }
 .button:hover {
-  background-color: var(--accent-highlight);
-  transition: background-color 150ms ease-in;
+  filter: saturate(1.5);
+  transition: filter var(--transition) ease-in;
 }
 .link {
   color: var(--accent);

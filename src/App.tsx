@@ -9,21 +9,23 @@ import router from './router';
 import { showSpinner } from './store/features/spinner.slice';
 import Spinner from './components/spinner';
 import { useAppDispatch, useAppSelector } from './store/hooks';
-import { setDeviceId } from './store/features/device.slice';
+import { setDeviceId, setDeviceName } from './store/features/device.slice';
 
 function App(): React.ReactElement {
   const dispatch = useAppDispatch();
 
-  const { deviceId } = useAppSelector((state) => state.device);
+  const { deviceId, deviceName } = useAppSelector((state) => state.device);
   const isLoading = useAppSelector((state) => state.spinner.isLoading);
 
   useEffect(
     (): void => {
       if (!deviceId) {
-        dispatch(setDeviceId(cuid()));
+        const newDeviceId = cuid();
+        dispatch(setDeviceId(newDeviceId));
+        if (!deviceName) {
+          dispatch(setDeviceName(newDeviceId));
+        }
       }
-
-      // TODO: set device name
 
       connection.open();
 

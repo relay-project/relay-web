@@ -8,6 +8,7 @@ interface HomeLayoutProps {
   toggleModal: (name: string) => void;
   showChangePasswordModal: boolean;
   showUpdateRecoveryModal: boolean;
+  token: string;
 }
 
 function HomeLayout(props: HomeLayoutProps): React.ReactElement {
@@ -17,12 +18,16 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
     showChangePasswordModal,
     showUpdateRecoveryModal,
     toggleModal,
+    token,
   } = props;
 
   return (
     <>
       { showChangePasswordModal && (
-        <ChangePasswordModal toggleModal={(): void => toggleModal('password')} />
+        <ChangePasswordModal
+          toggleModal={(): void => toggleModal('password')}
+          token={token}
+        />
       ) }
       { showUpdateRecoveryModal && (
         <div>

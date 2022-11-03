@@ -7,19 +7,38 @@ import React, {
 } from 'react';
 
 import Button from '../../../components/button';
-import { EVENTS, MAX_PASSWORD_LENGTH } from '../../../configuration';
+import delay from '../../../utilities/delay';
+import {
+  ERROR_MESSAGES,
+  EVENTS,
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  RESPONSE_MESSAGES,
+} from '../../../configuration';
+import formatErrorDetails from '../../../utilities/format-error-details';
 import Input from '../../../components/input';
 import ModalWrap from '../../../components/modal-wrap';
 import { type Response, SocketContext } from '../../../contexts/socket.context';
+import { setToken } from '../../../store/features/user.slice';
+import { useAppDispatch } from '../../../store/hooks';
 
 interface ChangePasswordModalProps {
   toggleModal: () => void;
+  token: string;
+}
+
+interface ChangePasswordResponse {
+  token: string;
 }
 
 function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElement {
-  const { toggleModal } = props;
+  const {
+    toggleModal,
+    token,
+  } = props;
 
   const connection = useContext(SocketContext);
+  const dispatch = useAppDispatch();
 
   const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
@@ -51,15 +70,68 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
     return setOldPassword(value);
   };
 
-  const handleResponse = (): void => {
+  const handleResponse = (response: Response<ChangePasswordResponse>): void => {
+    setLoading(false);
+    if (response.status > 299) {
+      if (response.info === RESPONSE_MESSAGES.VALIDATION_ERROR
+        && response.status === 400) {
+        return setFormError(
+          response.details
+            ? formatErrorDetails(response.details)
+            : ERROR_MESSAGES.providedDataIsInvalid,
+        );
+      }
+      if (response.info === RESPONSE_MESSAGES.OLD_PASSWORD_IS_INVALID
+        && response.status === 400) {
+        return setFormError(ERROR_MESSAGES.currentPasswordIsInvalid);
+      }
+      return setFormError(ERROR_MESSAGES.generic);
+    }
 
+    if (!response.payload) {
+      return setFormError('Something went wrong...');
+    }
+
+    const { token: newToken } = response.payload;
+    dispatch(setToken(newToken));
+
+    return toggleModal();
   };
 
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    async (
+      event: React.FormEvent<HTMLFormElement>,
+    ): Promise<typeof connection | void> => {
       event.preventDefault();
+      setFormError('');
+
+      const trimmedConfirmNewPassword = (confirmNewPassword || '').trim();
+      const trimmedNewPassword = (newPassword || '').trim();
+      const trimmedOldPassword = (oldPassword || '').trim();
+      if (!(trimmedConfirmNewPassword && trimmedNewPassword && trimmedOldPassword)) {
+        return setFormError(ERROR_MESSAGES.pleaseProvideTheData);
+      }
+      if (trimmedNewPassword.length < MIN_PASSWORD_LENGTH) {
+        return setFormError(ERROR_MESSAGES.passwordIsTooShort);
+      }
+      if (trimmedNewPassword.length > MAX_PASSWORD_LENGTH) {
+        return setFormError(ERROR_MESSAGES.passwordIsTooLong);
+      }
+      if (trimmedConfirmNewPassword !== trimmedNewPassword) {
+        return setFormError(ERROR_MESSAGES.passwordConfirmationIsInvalid);
+      }
 
       setLoading(true);
+      await delay();
+
+      return connection.emit(
+        EVENTS.UPDATE_PASSWORD,
+        {
+          newPassword: trimmedNewPassword,
+          oldPassword: trimmedOldPassword,
+          token,
+        },
+      );
     },
     [
       confirmNewPassword,
@@ -70,10 +142,10 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
 
   useEffect(
     (): (() => void) => {
-      connection.on(EVENTS.COMPLETE_LOGOUT, handleResponse);
+      connection.on(EVENTS.UPDATE_PASSWORD, handleResponse);
 
       return (): void => {
-        connection.off(EVENTS.COMPLETE_LOGOUT, handleResponse);
+        connection.off(EVENTS.UPDATE_PASSWORD, handleResponse);
       };
     },
     [connection],
@@ -123,14 +195,15 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
           ) }
         </div>
         <Button
+          classes={['button-positive']}
           disabled={loading}
           isSubmit
         >
-          Submit
+          Save
         </Button>
         <Button
-          disabled={loading}
           classes={['mt-1']}
+          disabled={loading}
           handleClick={toggleModal}
         >
           Cancel

@@ -14,6 +14,7 @@
   --success-light: #3bd000;
   --text: #FCFCFC;
   --text-inverted: #252525;
+  --transition: 160ms;
 }
 
 * {
@@ -88,14 +89,8 @@ input, textarea {
 .button-negative {
   background-color: var(--error);
 }
-.button-negative:hover {
-  background-color: var(--error-light);
-}
 .button-positive {
   background-color: var(--success);
-}
-.button-positive:hover {
-  background-color: var(--success-light);
 }
 
 @keyframes fade-in {

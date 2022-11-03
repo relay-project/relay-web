@@ -3,6 +3,7 @@ export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const ERROR_MESSAGES = {
   accessDenied: 'Access denied!',
   accountSuspended: 'Account suspended!',
+  currentPasswordIsInvalid: 'Current password is invalid!',
   generic: 'Something went wrong',
   loginShouldBeAlphanumeric: 'Login should be alphanumeric!',
   loginAlreadyInUse: 'Login is already in use!',
@@ -42,6 +43,7 @@ export const MIN_PASSWORD_LENGTH = 8;
 
 export const RESPONSE_MESSAGES = {
   LOGIN_ALREADY_IN_USE: 'LOGIN_ALREADY_IN_USE',
+  OLD_PASSWORD_IS_INVALID: 'OLD_PASSWORD_IS_INVALID',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
 };
 
