@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 
 import ChangePasswordModal from './change-password.modal';
+import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
   handleCompleteLogout: () => void;
@@ -30,9 +31,10 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         />
       ) }
       { showUpdateRecoveryModal && (
-        <div>
-          Update recovery
-        </div>
+        <UpdateRecoveryModal
+          toggleModal={(): void => toggleModal('recovery')}
+          token={token}
+        />
       ) }
       <div className="flex direction-column">
         <h1>

@@ -2,7 +2,7 @@
   background-color: var(--accent);
   border-radius: var(--spacer-quarter);
   color: var(--text);
-  filter: saturate(.5);
+  filter: brightness(100%);
   font-size: calc(var(--spacer) - var(--spacer-quarter));
   height: calc(var(--spacer) * 2);
   min-width: calc(var(--spacer) * 8);
@@ -10,7 +10,7 @@
   transition: filter var(--transition) ease-out;
 }
 .button:hover {
-  filter: saturate(1.5);
+  filter: brightness(140%);
   transition: filter var(--transition) ease-in;
 }
 .link {

@@ -19,6 +19,7 @@ import formatErrorDetails from '../../../utilities/format-error-details';
 import Input from '../../../components/input';
 import ModalWrap from '../../../components/modal-wrap';
 import { type Response, SocketContext } from '../../../contexts/socket.context';
+import Spinner from '../../../components/spinner';
 import { setToken } from '../../../store/features/user.slice';
 import { useAppDispatch } from '../../../store/hooks';
 
@@ -89,7 +90,7 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
     }
 
     if (!response.payload) {
-      return setFormError('Something went wrong...');
+      return setFormError(ERROR_MESSAGES.generic);
     }
 
     const { token: newToken } = response.payload;
@@ -153,6 +154,9 @@ function ChangePasswordModal(props: ChangePasswordModalProps): React.ReactElemen
 
   return (
     <ModalWrap>
+      { loading && (
+        <Spinner />
+      ) }
       <form
         className="flex direction-column"
         onSubmit={handleSubmit}
