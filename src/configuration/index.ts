@@ -20,6 +20,10 @@ export const ERROR_MESSAGES = {
 export const EVENTS = {
   COMPLETE_LOGOUT: 'complete-logout',
   CONNECT: 'connect',
+  FIND_USERS: 'find-users',
+  GET_CHAT: 'get-chat',
+  GET_CHAT_MESSAGES: 'get-chat-messages',
+  GET_CHATS: 'get-chats',
   DELETE_ACCOUNT: 'delete-account',
   RECOVERY_FINAL_STAGE: 'recovery-final-stage',
   RECOVERY_INITIAL_STAGE: 'recovery-inital-stage',

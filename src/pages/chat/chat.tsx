@@ -14,7 +14,7 @@ import { SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 
-function Home(): React.ReactElement {
+function Chat(): React.ReactElement {
   useRedirect();
 
   const connection = useContext(SocketContext);
@@ -23,17 +23,8 @@ function Home(): React.ReactElement {
 
   const [showChangePasswordModal, setShowChangePasswordModal] = useState<boolean>(false);
   const [showUpdateRecoveryModal, setShowUpdateRecoveryModal] = useState<boolean>(false);
-  const { token } = useAppSelector((state) => state.user);
 
-  const handleCompleteLogout = async (): Promise<typeof connection> => {
-    await delay();
-    return connection.emit(
-      EVENTS.COMPLETE_LOGOUT,
-      {
-        token,
-      },
-    );
-  };
+  const { token } = useAppSelector((state) => state.user);
 
   const handleGetChats = (): void => {
     connection.emit(
@@ -78,31 +69,22 @@ function Home(): React.ReactElement {
 
   useEffect(
     (): (() => void) => {
-      connection.on(EVENTS.COMPLETE_LOGOUT, handleLogout);
-      connection.on(EVENTS.FIND_USERS, handleFindUsersResponse);
-      connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
+      connection.on(EVENTS.GET_CHAT, handleGetChatsResponse);
 
       return (): void => {
-        connection.off(EVENTS.COMPLETE_LOGOUT, handleLogout);
-        connection.off(EVENTS.FIND_USERS, handleFindUsersResponse);
-        connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
+        connection.off(EVENTS.GET_CHAT, handleGetChatsResponse);
       };
     },
     [connection],
   );
 
   return (
-    <HomeLayout
-      handleFindUsers={handleFindUsers}
-      handleGetChats={handleGetChats}
-      handleCompleteLogout={handleCompleteLogout}
-      handleLogout={handleLogout}
-      showChangePasswordModal={showChangePasswordModal}
-      showUpdateRecoveryModal={showUpdateRecoveryModal}
-      toggleModal={toggleModal}
-      token={token}
-    />
+    <div>
+      <h1>
+        Chat
+      </h1>
+    </div>
   );
 }
 
-export default memo(Home);
+export default memo(Chat);

@@ -4,6 +4,8 @@ import ChangePasswordModal from './change-password.modal';
 import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
+  handleFindUsers: () => void;
+  handleGetChats: () => void;
   handleCompleteLogout: () => void;
   handleLogout: () => void;
   toggleModal: (name: string) => void;
@@ -14,6 +16,8 @@ interface HomeLayoutProps {
 
 function HomeLayout(props: HomeLayoutProps): React.ReactElement {
   const {
+    handleFindUsers,
+    handleGetChats,
     handleCompleteLogout,
     handleLogout,
     showChangePasswordModal,
@@ -67,6 +71,20 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
           type="button"
         >
           Update recovery data
+        </button>
+        <button
+          className="mt-1"
+          onClick={handleGetChats}
+          type="button"
+        >
+          Get chats
+        </button>
+        <button
+          className="mt-1"
+          onClick={handleFindUsers}
+          type="button"
+        >
+          Find users
         </button>
       </div>
     </>
