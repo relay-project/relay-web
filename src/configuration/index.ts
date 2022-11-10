@@ -1,5 +1,10 @@
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+export const CHAT_TYPES = {
+  group: 'group',
+  private: 'private',
+};
+
 export const ERROR_MESSAGES = {
   accessDenied: 'Access denied!',
   accountSuspended: 'Account suspended!',

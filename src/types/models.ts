@@ -4,13 +4,29 @@ interface Base {
   updatedAt?: string;
 }
 
+export type ChatTypes = 'group' | 'private';
+
 export interface ChatModel extends Base {
   createdBy: number;
   name: string;
-  type: string;
+  type: ChatTypes;
 }
 
-export type Roles = 'admininstrator' | 'user';
+export interface MessageModel extends Base {
+  authorId: number;
+  chatId: number;
+  edited: boolean;
+  text: string;
+}
+
+export interface Pagination {
+  currentPage: number;
+  limit?: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export type Roles = 'admin' | 'user';
 
 export interface UserModel extends Base {
   failedLoginAttempts?: number;
