@@ -20,6 +20,7 @@ export const ERROR_MESSAGES = {
 export const EVENTS = {
   COMPLETE_LOGOUT: 'complete-logout',
   CONNECT: 'connect',
+  CREATE_CHAT: 'create-chat',
   FIND_USERS: 'find-users',
   GET_CHAT: 'get-chat',
   GET_CHAT_MESSAGES: 'get-chat-messages',

@@ -4,15 +4,17 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import delay from '../../utilities/delay';
-import { deleteUserData } from '../../store/features/user.slice';
 import { EVENTS } from '../../configuration';
-import HomeLayout from './components/home.layout';
-import { SocketContext } from '../../contexts/socket.context';
+import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
+import { ChatModel, UserModel } from '../../types/models';
+
+interface GetChatPayload extends ChatModel {
+  users: UserModel[];
+}
 
 function Chat(): React.ReactElement {
   useRedirect();
@@ -20,62 +22,58 @@ function Chat(): React.ReactElement {
   const connection = useContext(SocketContext);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const params = useParams();
 
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState<boolean>(false);
-  const [showUpdateRecoveryModal, setShowUpdateRecoveryModal] = useState<boolean>(false);
+  const [chatLoading, setChatLoading] = useState<boolean>(true);
+  const [chatMessagesLoading, setChatMessagesLoading] = useState<boolean>(true);
+  const [subscribed, setSubscribed] = useState<boolean>(false);
 
   const { token } = useAppSelector((state) => state.user);
 
-  const handleGetChats = (): void => {
-    connection.emit(
-      EVENTS.GET_CHATS,
-      {
-        token,
-      },
-    );
+  const handleGetChatResponse = (response: Response<GetChatPayload>): void => {
+    setChatLoading(false);
+    console.log(response?.payload);
   };
 
-  const handleFindUsers = (): void => {
-    connection.emit(
-      EVENTS.FIND_USERS,
-      {
-        limit: 1,
-        search: 'tes',
-        token,
-      },
-    );
-  };
-
-  const handleFindUsersResponse = (response: Response): void => {
+  const handleGetChatMessagesResponse = (response: Response): void => {
+    setChatMessagesLoading(false);
     console.log(response);
-  };
-
-  const handleGetChatsResponse = (response: Response): void => {
-    console.log(response);
-  };
-
-  const handleLogout = async (): Promise<void> => {
-    dispatch(deleteUserData());
-    await delay();
-    return navigate('/');
-  };
-
-  const toggleModal = (name: string): void => {
-    if (name === 'password') {
-      return setShowChangePasswordModal((state: boolean): boolean => !state);
-    }
-    return setShowUpdateRecoveryModal((state: boolean): boolean => !state);
   };
 
   useEffect(
     (): (() => void) => {
-      connection.on(EVENTS.GET_CHAT, handleGetChatsResponse);
+      connection.on(EVENTS.GET_CHAT, handleGetChatResponse);
+      connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
 
+      setSubscribed(true);
       return (): void => {
-        connection.off(EVENTS.GET_CHAT, handleGetChatsResponse);
+        connection.off(EVENTS.GET_CHAT, handleGetChatResponse);
+        connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
       };
     },
-    [connection],
+    [],
+  );
+
+  useEffect(
+    (): void => {
+      if (subscribed) {
+        connection.emit(
+          EVENTS.GET_CHAT,
+          {
+            chatId: params.id,
+            token,
+          },
+        );
+        // connection.emit(
+        //   EVENTS.GET_CHAT_MESSAGES,
+        //   {
+        //     chatId: params.id,
+        //     token,
+        //   },
+        // );
+      }
+    },
+    [subscribed],
   );
 
   return (
@@ -83,6 +81,21 @@ function Chat(): React.ReactElement {
       <h1>
         Chat
       </h1>
+      { chatLoading && (
+        <div>
+          Loading chat data
+        </div>
+      ) }
+      { !chatLoading && (
+        <div>
+          Loaded chat data
+        </div>
+      ) }
+      { !chatLoading && !chatMessagesLoading && (
+        <div>
+          Loaded messages
+        </div>
+      ) }
     </div>
   );
 }

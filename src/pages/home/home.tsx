@@ -10,9 +10,10 @@ import delay from '../../utilities/delay';
 import { deleteUserData } from '../../store/features/user.slice';
 import { EVENTS } from '../../configuration';
 import HomeLayout from './components/home.layout';
-import { SocketContext } from '../../contexts/socket.context';
+import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
+import { ROUTING } from '../../router';
 
 function Home(): React.ReactElement {
   useRedirect();
@@ -30,6 +31,17 @@ function Home(): React.ReactElement {
     return connection.emit(
       EVENTS.COMPLETE_LOGOUT,
       {
+        token,
+      },
+    );
+  };
+
+  const handleCreateChat = async (): Promise<typeof connection> => {
+    await delay();
+    return connection.emit(
+      EVENTS.CREATE_CHAT,
+      {
+        invited: [3],
         token,
       },
     );
@@ -76,14 +88,24 @@ function Home(): React.ReactElement {
     return setShowUpdateRecoveryModal((state: boolean): boolean => !state);
   };
 
+  const handleCreateChatResponse = (
+    response: Response<{ chatId: number, isNew: boolean }>,
+  ): void => {
+    console.log(response);
+    const { payload: { chatId = null } = {} } = response;
+    return navigate(`/${ROUTING.chat}/${chatId}`);
+  };
+
   useEffect(
     (): (() => void) => {
       connection.on(EVENTS.COMPLETE_LOGOUT, handleLogout);
+      connection.on(EVENTS.CREATE_CHAT, handleCreateChatResponse);
       connection.on(EVENTS.FIND_USERS, handleFindUsersResponse);
       connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
 
       return (): void => {
         connection.off(EVENTS.COMPLETE_LOGOUT, handleLogout);
+        connection.off(EVENTS.CREATE_CHAT, handleCreateChatResponse);
         connection.off(EVENTS.FIND_USERS, handleFindUsersResponse);
         connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
       };
@@ -93,6 +115,7 @@ function Home(): React.ReactElement {
 
   return (
     <HomeLayout
+      handleCreateChat={handleCreateChat}
       handleFindUsers={handleFindUsers}
       handleGetChats={handleGetChats}
       handleCompleteLogout={handleCompleteLogout}

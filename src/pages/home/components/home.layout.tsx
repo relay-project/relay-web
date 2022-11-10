@@ -1,9 +1,11 @@
 import React, { memo } from 'react';
+import { Socket } from 'socket.io-client';
 
 import ChangePasswordModal from './change-password.modal';
 import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
+  handleCreateChat: () => Promise<Socket>;
   handleFindUsers: () => void;
   handleGetChats: () => void;
   handleCompleteLogout: () => void;
@@ -16,6 +18,7 @@ interface HomeLayoutProps {
 
 function HomeLayout(props: HomeLayoutProps): React.ReactElement {
   const {
+    handleCreateChat,
     handleFindUsers,
     handleGetChats,
     handleCompleteLogout,
@@ -85,6 +88,13 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
           type="button"
         >
           Find users
+        </button>
+        <button
+          className="mt-1"
+          onClick={handleCreateChat}
+          type="button"
+        >
+          Create chat
         </button>
       </div>
     </>

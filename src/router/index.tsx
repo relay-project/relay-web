@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
+import Chat from '../pages/chat';
 import Home from '../pages/home';
 import IndexPage from '../pages/index';
 import NotFoundPage from '../pages/not-found';
@@ -9,6 +10,7 @@ import SignIn from '../pages/sign-in';
 import SignUp from '../pages/sign-up';
 
 export const ROUTING = {
+  chat: 'chat',
   home: 'home',
   recovery: 'recovery',
   signIn: 'sign-in',
@@ -16,6 +18,10 @@ export const ROUTING = {
 };
 
 export default createBrowserRouter([
+  {
+    element: <Chat />,
+    path: `/${ROUTING.chat}/:id`,
+  },
   {
     element: <Home />,
     path: `/${ROUTING.home}`,
