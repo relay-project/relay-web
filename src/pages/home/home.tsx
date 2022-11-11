@@ -14,6 +14,27 @@ import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 import { ROUTING } from '../../router';
+import type {
+  ChatModel,
+  MessageModel,
+  Pagination,
+  UserModel,
+} from '../../types/models';
+
+export type ChatUser = Pick<UserModel, 'id' | 'login'>;
+
+export type LatestMessage = Pick<MessageModel, 'authorId' | 'createdAt' | 'text'> & {
+  authorLogin: string;
+};
+
+export interface ChatListEntry extends ChatModel {
+  latestMessage: LatestMessage[];
+  users: ChatUser[];
+}
+
+interface GetChatsPayload extends Pagination {
+  results: ChatListEntry[];
+}
 
 function Home(): React.ReactElement {
   useRedirect();
@@ -22,9 +43,19 @@ function Home(): React.ReactElement {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const [chats, setChats] = useState<ChatModel[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    currentPage: 1,
+    limit: 100,
+    totalCount: 0,
+    totalPages: 1,
+  });
   const [showChangePasswordModal, setShowChangePasswordModal] = useState<boolean>(false);
   const [showUpdateRecoveryModal, setShowUpdateRecoveryModal] = useState<boolean>(false);
-  const { token } = useAppSelector((state) => state.user);
+
+  const { id: userId, token } = useAppSelector((state) => state.user);
+
+  const handleNavigation = (destination: string): void => navigate(destination);
 
   const handleCompleteLogout = async (): Promise<typeof connection> => {
     await delay();
@@ -71,8 +102,17 @@ function Home(): React.ReactElement {
     console.log(response);
   };
 
-  const handleGetChatsResponse = (response: Response): void => {
-    console.log(response);
+  const handleGetChatsResponse = (response: Response<GetChatsPayload>): null | void => {
+    // TODO: handle errors
+
+    const { payload } = response;
+    if (!payload) {
+      return null;
+    }
+    console.log(payload);
+    const { results, ...rest } = payload;
+    setChats(results);
+    return setPagination(rest);
   };
 
   const handleLogout = async (): Promise<void> => {
@@ -115,15 +155,18 @@ function Home(): React.ReactElement {
 
   return (
     <HomeLayout
+      chats={chats}
       handleCreateChat={handleCreateChat}
       handleFindUsers={handleFindUsers}
       handleGetChats={handleGetChats}
       handleCompleteLogout={handleCompleteLogout}
       handleLogout={handleLogout}
+      handleNavigation={handleNavigation}
       showChangePasswordModal={showChangePasswordModal}
       showUpdateRecoveryModal={showUpdateRecoveryModal}
       toggleModal={toggleModal}
       token={token}
+      userId={Number(userId)}
     />
   );
 }
