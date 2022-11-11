@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,7 +14,7 @@ import {
   EVENTS,
 } from '../../configuration';
 import { type Response, SocketContext } from '../../contexts/socket.context';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 import type {
   ChatModel,
@@ -22,6 +23,10 @@ import type {
   UserModel,
 } from '../../types/models';
 import Spinner from '../../components/spinner';
+import Input from '../../components/input';
+import Button from '../../components/button';
+import './styles.css';
+import { ROUTING } from '../../router';
 
 interface ChatUser extends UserModel {
   chatId: number;
@@ -45,7 +50,6 @@ function Chat(): React.ReactElement {
   useRedirect();
 
   const connection = useContext(SocketContext);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const params = useParams();
 
@@ -55,6 +59,7 @@ function Chat(): React.ReactElement {
   const [chatMessagesLoading, setChatMessagesLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<UserMessage[]>([]);
+  const [messageInput, setMessageInput] = useState<string>('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     limit: 100,
@@ -63,7 +68,11 @@ function Chat(): React.ReactElement {
   });
   const [subscribed, setSubscribed] = useState<boolean>(false);
 
-  const { id, token } = useAppSelector((state) => state.user);
+  const {
+    id,
+    login,
+    token,
+  } = useAppSelector((state) => state.user);
 
   const chatName = useMemo(
     (): string => {
@@ -83,6 +92,19 @@ function Chat(): React.ReactElement {
       chatUsers,
       id,
     ],
+  );
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = (): void => {
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(
+    (): void => {
+      scrollToBottom();
+    },
+    [messages],
   );
 
   const handleGetChatResponse = (response: Response<GetChatPayload>): void => {
@@ -111,19 +133,75 @@ function Chat(): React.ReactElement {
     }
 
     const { results, ...rest } = response.payload;
-    setMessages(results);
-    return setPagination(rest);
+    setMessages(results.reverse());
+    setPagination(rest);
+    return scrollToBottom();
   };
+
+  const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
+    const { currentTarget: { value = '' } = {} } = event;
+    return setMessageInput(value);
+  };
+
+  const handleSendMessage = (
+    event: React.FormEvent<HTMLFormElement>,
+  ): null | void => {
+    event.preventDefault();
+    const trimmedMessage = (messageInput || '').trim();
+    if (!trimmedMessage) {
+      return null;
+    }
+    connection.emit(
+      EVENTS.SEND_MESSAGE,
+      {
+        chatId: chatData?.id,
+        text: messageInput,
+        token,
+      },
+    );
+    return setMessageInput('');
+  };
+
+  const handleSendMessageResponse = (response: Response<UserMessage>): null | void => {
+    const { payload: incomingMessage = null } = response;
+    if (!incomingMessage) {
+      return null;
+    }
+    return setMessages(
+      (state: UserMessage[]): UserMessage[] => [
+        ...state,
+        incomingMessage,
+      ],
+    );
+  };
+
+  const handleIncomingMessage = (message: UserMessage): void => setMessages(
+    (state: UserMessage[]): UserMessage[] => [
+      ...state,
+      message,
+    ],
+  );
 
   useEffect(
     (): (() => void) => {
       connection.on(EVENTS.GET_CHAT, handleGetChatResponse);
       connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+      connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+      connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
 
       setSubscribed(true);
       return (): void => {
+        connection.emit(
+          EVENTS.LEAVE_ROOM,
+          {
+            chatId: chatData?.id,
+            token,
+          },
+        );
         connection.off(EVENTS.GET_CHAT, handleGetChatResponse);
         connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+        connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+        connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
       };
     },
     [],
@@ -167,21 +245,50 @@ function Chat(): React.ReactElement {
               Messages not found!
             </div>
           ) }
-          { messages.length > 0 && messages.map(
-            (message: UserMessage): React.ReactNode => (
-              <div
-                className="flex direction-column mt-1"
-                key={message.id}
+          <div className="flex direction-column messages">
+            { messages.length > 0 && messages.map(
+              (message: UserMessage): React.ReactNode => (
+                <div
+                  className="flex direction-column mt-1"
+                  key={message.id}
+                >
+                  <div>
+                    { `${message.login === login ? 'You' : message.login} wrote:` }
+                  </div>
+                  <div>
+                    { message.text }
+                  </div>
+                </div>
+              ),
+            ) }
+            <div ref={scrollRef} />
+          </div>
+          <form
+            className="flex direction-column mt-1"
+            onSubmit={handleSendMessage}
+          >
+            <Input
+              handleInput={handleInput}
+              name="messageInput"
+              placeholder="Message"
+              value={messageInput}
+            />
+            <Button
+              classes={['mt-1']}
+              isSubmit
+            >
+              Send
+            </Button>
+            <div className="flex justify-center">
+              <Button
+                classes={['mt-1']}
+                handleClick={(): void => navigate(`/${ROUTING.home}`)}
+                isLink
               >
-                <div>
-                  { `${message.login} wrote:` }
-                </div>
-                <div>
-                  { message.text }
-                </div>
-              </div>
-            ),
-          ) }
+                Back
+              </Button>
+            </div>
+          </form>
         </>
       ) }
     </div>

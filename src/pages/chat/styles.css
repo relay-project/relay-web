@@ -1,0 +1,6 @@
+.messages {
+  height: calc(var(--spacer) * 28);
+  max-height: calc(var(--spacer) * 28);
+  min-height: calc(var(--spacer) * 28);
+  overflow-y: scroll;
+}
