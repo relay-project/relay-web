@@ -43,7 +43,7 @@ function Home(): React.ReactElement {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [chats, setChats] = useState<ChatModel[]>([]);
+  const [chats, setChats] = useState<ChatListEntry[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     limit: 100,
@@ -51,6 +51,7 @@ function Home(): React.ReactElement {
     totalPages: 1,
   });
   const [showChangePasswordModal, setShowChangePasswordModal] = useState<boolean>(false);
+  const [showFindUsersModal, setShowFindUsersModal] = useState<boolean>(false);
   const [showUpdateRecoveryModal, setShowUpdateRecoveryModal] = useState<boolean>(false);
 
   const { id: userId, token } = useAppSelector((state) => state.user);
@@ -87,21 +88,6 @@ function Home(): React.ReactElement {
     );
   };
 
-  const handleFindUsers = (): void => {
-    connection.emit(
-      EVENTS.FIND_USERS,
-      {
-        limit: 1,
-        search: 'tes',
-        token,
-      },
-    );
-  };
-
-  const handleFindUsersResponse = (response: Response): void => {
-    console.log(response);
-  };
-
   const handleGetChatsResponse = (response: Response<GetChatsPayload>): null | void => {
     // TODO: handle errors
 
@@ -122,6 +108,9 @@ function Home(): React.ReactElement {
   };
 
   const toggleModal = (name: string): void => {
+    if (name === 'find-users') {
+      return setShowFindUsersModal((state: boolean): boolean => !state);
+    }
     if (name === 'password') {
       return setShowChangePasswordModal((state: boolean): boolean => !state);
     }
@@ -140,13 +129,11 @@ function Home(): React.ReactElement {
     (): (() => void) => {
       connection.on(EVENTS.COMPLETE_LOGOUT, handleLogout);
       connection.on(EVENTS.CREATE_CHAT, handleCreateChatResponse);
-      connection.on(EVENTS.FIND_USERS, handleFindUsersResponse);
       connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
 
       return (): void => {
         connection.off(EVENTS.COMPLETE_LOGOUT, handleLogout);
         connection.off(EVENTS.CREATE_CHAT, handleCreateChatResponse);
-        connection.off(EVENTS.FIND_USERS, handleFindUsersResponse);
         connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
       };
     },
@@ -157,12 +144,12 @@ function Home(): React.ReactElement {
     <HomeLayout
       chats={chats}
       handleCreateChat={handleCreateChat}
-      handleFindUsers={handleFindUsers}
       handleGetChats={handleGetChats}
       handleCompleteLogout={handleCompleteLogout}
       handleLogout={handleLogout}
       handleNavigation={handleNavigation}
       showChangePasswordModal={showChangePasswordModal}
+      showFindUsersModal={showFindUsersModal}
       showUpdateRecoveryModal={showUpdateRecoveryModal}
       toggleModal={toggleModal}
       token={token}

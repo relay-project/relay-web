@@ -8,6 +8,7 @@ interface InputProps {
   handleInput: (event: React.FormEvent<HTMLInputElement>) => void;
   name: string;
   placeholder?: string;
+  styles?: object;
   type?: string;
   value: number | string;
 }
@@ -19,19 +20,23 @@ function Input(props: InputProps): React.ReactElement {
     handleInput,
     name,
     placeholder = '',
+    styles = {},
     type = 'text',
     value,
   } = props;
 
-  const additionalStyles = classes.join(' ');
+  const additionalClasses = classes.join(' ');
 
   return (
     <input
-      className={`input ${additionalStyles}`}
+      className={`input ${additionalClasses}`}
       disabled={disabled}
       name={name}
       onChange={handleInput}
       placeholder={placeholder}
+      style={{
+        ...styles,
+      }}
       type={type}
       value={value}
     />
@@ -42,6 +47,7 @@ Input.defaultProps = {
   classes: [],
   disabled: false,
   placeholder: '',
+  styles: {},
   type: 'text',
 };
 

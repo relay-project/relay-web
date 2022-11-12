@@ -2,22 +2,23 @@ import React, { memo } from 'react';
 import { Socket } from 'socket.io-client';
 
 import Button from '../../../components/button';
+import ChangePasswordModal from './change-password.modal';
 import { CHAT_TYPES } from '../../../configuration';
+import FindUsersModal from './find-users.modal';
 import { ROUTING } from '../../../router';
 import type { ChatListEntry } from '../home';
-import ChangePasswordModal from './change-password.modal';
 import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
   chats: ChatListEntry[];
   handleCreateChat: () => Promise<Socket>;
-  handleFindUsers: () => void;
   handleGetChats: () => void;
   handleCompleteLogout: () => void;
   handleLogout: () => void;
   handleNavigation: (destination: string) => void;
   toggleModal: (name: string) => void;
   showChangePasswordModal: boolean;
+  showFindUsersModal: boolean;
   showUpdateRecoveryModal: boolean;
   token: string;
   userId: number;
@@ -27,12 +28,12 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
   const {
     chats,
     handleCreateChat,
-    handleFindUsers,
     handleGetChats,
     handleCompleteLogout,
     handleLogout,
     handleNavigation,
     showChangePasswordModal,
+    showFindUsersModal,
     showUpdateRecoveryModal,
     toggleModal,
     token,
@@ -44,6 +45,12 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
       { showChangePasswordModal && (
         <ChangePasswordModal
           toggleModal={(): void => toggleModal('password')}
+          token={token}
+        />
+      ) }
+      { showFindUsersModal && (
+        <FindUsersModal
+          toggleModal={(): void => toggleModal('find-users')}
           token={token}
         />
       ) }
@@ -94,7 +101,7 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         </button>
         <button
           className="mt-1"
-          onClick={handleFindUsers}
+          onClick={(): void => toggleModal('find-users')}
           type="button"
         >
           Find users

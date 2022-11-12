@@ -117,6 +117,10 @@ input, textarea {
 .text-center {
   text-align: center;
 }
+.width {
+  min-width: calc(var(--spacer) * 20);
+  width: calc(var(--spacer) * 30);
+}
 
 .noselect {
   -webkit-touch-callout: none;
