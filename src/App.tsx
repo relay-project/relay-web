@@ -6,10 +6,10 @@ import { connection, SocketContext } from './contexts/socket.context';
 import delay from './utilities/delay';
 import { EVENTS } from './configuration';
 import router from './router';
+import { setDeviceId, setDeviceName } from './store/features/device.slice';
 import { showSpinner } from './store/features/spinner.slice';
 import Spinner from './components/spinner';
 import { useAppDispatch, useAppSelector } from './store/hooks';
-import { setDeviceId, setDeviceName } from './store/features/device.slice';
 
 function App(): React.ReactElement {
   const dispatch = useAppDispatch();

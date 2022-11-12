@@ -1,5 +1,6 @@
 import React, {
   memo,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -76,14 +77,27 @@ function Chat(): React.ReactElement {
 
   const chatName = useMemo(
     (): string => {
-      if (chatData && chatData.type === CHAT_TYPES.private && chatUsers) {
-        const [anotherUser = null] = chatUsers.filter(
-          (user: ChatUser): boolean => user.id !== id,
-        );
-        if (!anotherUser) {
-          return 'Chat';
+      if (chatData && chatUsers) {
+        if (chatData.type === CHAT_TYPES.private) {
+          const [anotherUser = null] = chatUsers.filter(
+            (user: ChatUser): boolean => user.id !== id,
+          );
+          if (!anotherUser) {
+            return 'Chat';
+          }
+          return `Chat with ${anotherUser.login}`;
         }
-        return `Chat with ${anotherUser.login}`;
+        const loginList = chatUsers.reduce(
+          (array: string[], user: ChatUser): string[] => {
+            if (user.id === id) {
+              return array;
+            }
+            array.push(user.login);
+            return array;
+          },
+          [],
+        );
+        return `Chat with ${loginList.join(', ')}`;
       }
       return 'Chat';
     },
@@ -143,6 +157,35 @@ function Chat(): React.ReactElement {
     return setMessageInput(value);
   };
 
+  const handleHideChat = useCallback(
+    (): void => {
+      connection.emit(
+        EVENTS.HIDE_CHAT,
+        {
+          chatId: chatData?.id,
+          token,
+        },
+      );
+      return setChatLoading(true);
+    },
+    [chatData],
+  );
+
+  const handleHideChatResponse = (response: Response): void => {
+    setChatLoading(false);
+
+    if (response.status > 299) {
+      // TODO: handle error response
+    }
+
+    return navigate(
+      `/${ROUTING.home}`,
+      {
+        replace: true,
+      },
+    );
+  };
+
   const handleSendMessage = (
     event: React.FormEvent<HTMLFormElement>,
   ): null | void => {
@@ -186,25 +229,35 @@ function Chat(): React.ReactElement {
     (): (() => void) => {
       connection.on(EVENTS.GET_CHAT, handleGetChatResponse);
       connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+      connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
       connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
       connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
 
       setSubscribed(true);
       return (): void => {
-        connection.emit(
-          EVENTS.LEAVE_ROOM,
-          {
-            chatId: chatData?.id,
-            token,
-          },
-        );
         connection.off(EVENTS.GET_CHAT, handleGetChatResponse);
         connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+        connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
         connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
         connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
       };
     },
     [],
+  );
+
+  useEffect(
+    (): (() => void) => (): void => {
+      if (chatData && chatData.id) {
+        connection.emit(
+          EVENTS.LEAVE_ROOM,
+          {
+            chatId: chatData.id,
+            token,
+          },
+        );
+      }
+    },
+    [chatData],
   );
 
   useEffect(
@@ -226,13 +279,19 @@ function Chat(): React.ReactElement {
       { chatLoading && (
         <Spinner />
       ) }
-      <h1>
-        { chatData && chatData.type === CHAT_TYPES.private && (
-          <span>
-            { chatName }
-          </span>
-        ) }
-      </h1>
+      <div className="flex justify-space-between align-items-center">
+        <h1>
+          { chatName }
+        </h1>
+        <div className="flex">
+          <Button
+            handleClick={handleHideChat}
+            isLink
+          >
+            Hide chat
+          </Button>
+        </div>
+      </div>
       { chatMessagesLoading && (
         <div>
           Loading messages
