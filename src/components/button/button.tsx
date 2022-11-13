@@ -9,6 +9,7 @@ interface ButtonProps {
   handleClick?: () => void;
   isLink?: boolean;
   isSubmit?: boolean;
+  styles?: object;
 }
 
 function Button(props: ButtonProps): React.ReactElement {
@@ -19,6 +20,7 @@ function Button(props: ButtonProps): React.ReactElement {
     handleClick,
     isLink,
     isSubmit,
+    styles,
   } = props;
 
   const classesString = classes && classes.length > 0
@@ -37,6 +39,9 @@ function Button(props: ButtonProps): React.ReactElement {
       className={`${isLink ? 'link' : 'button'} noselect ${classesString}`}
       disabled={disabled}
       onClick={onClick}
+      style={{
+        ...styles,
+      }}
       type={
         isSubmit
           ? 'submit'
@@ -54,6 +59,7 @@ Button.defaultProps = {
   handleClick: null,
   isLink: false,
   isSubmit: false,
+  styles: {},
 };
 
 export default memo(Button);

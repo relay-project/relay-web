@@ -5,6 +5,12 @@ export const CHAT_TYPES = {
   private: 'private',
 };
 
+export const COLORS = {
+  accent: '#6210f1',
+  accentLight: '#9050ff',
+  text: '#FCFCFC',
+};
+
 export const ERROR_MESSAGES = {
   accessDenied: 'Access denied!',
   accountSuspended: 'Account suspended!',
@@ -36,6 +42,8 @@ export const EVENTS = {
   LEAVE_ROOM: 'leave-room',
   RECOVERY_FINAL_STAGE: 'recovery-final-stage',
   RECOVERY_INITIAL_STAGE: 'recovery-inital-stage',
+  ROOM_DELETE_MESSAGE: 'room-delete-message',
+  ROOM_UPDATE_MESSAGE: 'room-update-message',
   SEND_MESSAGE: 'send-message',
   SIGN_IN: 'sign-in',
   SIGN_UP: 'sign-up',
@@ -72,3 +80,5 @@ export const ROLES = {
   admin: 'admin',
   user: 'user',
 };
+
+export const SPACER = 16;

@@ -108,6 +108,9 @@ input, textarea {
 .ml-1 {
   margin-left: var(--spacer);
 }
+.ml-half {
+  margin-left: var(--spacer-half);
+}
 .mt-1 {
   margin-top: var(--spacer);
 }

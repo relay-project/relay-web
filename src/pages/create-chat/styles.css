@@ -1,0 +1,7 @@
+.tag {
+  background-color: var(--accent);
+  border-radius: var(--spacer-half);
+  color: var(--text);
+  margin: 0 var(--spacer-quarter);
+  padding: var(--spacer-quarter) var(--spacer-half);
+}

@@ -7,11 +7,13 @@ import React, {
 } from 'react';
 
 import Button from '../../components/button';
+import CloseIcon from '../../icons/close';
 import {
   ERROR_MESSAGES,
   EVENTS,
   PAGINATION_DEFAULTS,
   RESPONSE_MESSAGES,
+  SPACER,
 } from '../../configuration';
 import Input from '../../components/input';
 import type { Pagination, UserModel } from '../../types/models';
@@ -19,6 +21,7 @@ import { type Response, SocketContext } from '../../contexts/socket.context';
 import useDebounce from '../../hooks/use-debounce';
 import useRedirect from '../../hooks/use-redirect';
 import { useAppSelector } from '../../store/hooks';
+import './styles.css';
 
 type FoundUser = Pick<UserModel, 'id' | 'login'>;
 
@@ -120,7 +123,7 @@ function CreateChat(): React.ReactElement {
   return (
     <div className="flex direction-column">
       <div className="flex direction-column width">
-        <h1>
+        <h1 className="noselect">
           Create new chat
         </h1>
         <Input
@@ -154,22 +157,28 @@ function CreateChat(): React.ReactElement {
           </div>
         )) }
         <div className="flex mt-1">
-          { selectedUsers.length > 0 && selectedUsers.map((user: FoundUser): React.ReactNode => (
-            <div
-              className="flex fade-in pill"
-              key={user.id}
-            >
-              <span>
-                { user.login }
-              </span>
-              <Button
-                handleClick={(): void => handleRemoveSelectedUser(user.id)}
-                isLink
+          { selectedUsers.length > 0 && selectedUsers.map(
+            (user: FoundUser): React.ReactNode => (
+              <div
+                className="flex align-items-center fade-in tag"
+                key={user.id}
               >
-                Remove
-              </Button>
-            </div>
-          )) }
+                <span className="noselect">
+                  { user.login }
+                </span>
+                <Button
+                  classes={['ml-half']}
+                  handleClick={(): void => handleRemoveSelectedUser(user.id)}
+                  isLink
+                  styles={{
+                    height: SPACER,
+                  }}
+                >
+                  <CloseIcon />
+                </Button>
+              </div>
+            ),
+          ) }
         </div>
       </div>
     </div>
