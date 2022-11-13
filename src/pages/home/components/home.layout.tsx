@@ -4,9 +4,8 @@ import { Socket } from 'socket.io-client';
 import Button from '../../../components/button';
 import ChangePasswordModal from './change-password.modal';
 import { CHAT_TYPES } from '../../../configuration';
-import FindUsersModal from './find-users.modal';
-import { ROUTING } from '../../../router';
 import type { ChatListEntry } from '../home';
+import { ROUTING } from '../../../router';
 import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
@@ -18,7 +17,6 @@ interface HomeLayoutProps {
   handleNavigation: (destination: string) => void;
   toggleModal: (name: string) => void;
   showChangePasswordModal: boolean;
-  showFindUsersModal: boolean;
   showUpdateRecoveryModal: boolean;
   token: string;
   userId: number;
@@ -33,7 +31,6 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
     handleLogout,
     handleNavigation,
     showChangePasswordModal,
-    showFindUsersModal,
     showUpdateRecoveryModal,
     toggleModal,
     token,
@@ -48,12 +45,6 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
           token={token}
         />
       ) }
-      { showFindUsersModal && (
-        <FindUsersModal
-          toggleModal={(): void => toggleModal('find-users')}
-          token={token}
-        />
-      ) }
       { showUpdateRecoveryModal && (
         <UpdateRecoveryModal
           toggleModal={(): void => toggleModal('recovery')}
@@ -61,9 +52,17 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         />
       ) }
       <div className="flex direction-column">
-        <h1>
-          Home
-        </h1>
+        <div className="flex justify-space-between align-items-center">
+          <h1>
+            Home
+          </h1>
+          <Button
+            handleClick={(): void => handleNavigation(`/${ROUTING.createChat}`)}
+            isLink
+          >
+            Create new chat
+          </Button>
+        </div>
         <button
           className="mt-1"
           onClick={handleLogout}
@@ -101,17 +100,10 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         </button>
         <button
           className="mt-1"
-          onClick={(): void => toggleModal('find-users')}
-          type="button"
-        >
-          Find users
-        </button>
-        <button
-          className="mt-1"
           onClick={handleCreateChat}
           type="button"
         >
-          Create chat
+          Create chat HARDCODED
         </button>
         { chats.length > 0 && chats.map((chat: ChatListEntry): React.ReactNode => (
           <div

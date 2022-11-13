@@ -13,6 +13,7 @@ import {
   CHAT_TYPES,
   ERROR_MESSAGES,
   EVENTS,
+  PAGINATION_DEFAULTS,
 } from '../../configuration';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppSelector } from '../../store/hooks';
@@ -61,12 +62,7 @@ function Chat(): React.ReactElement {
   const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<UserMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
-  const [pagination, setPagination] = useState<Pagination>({
-    currentPage: 1,
-    limit: 100,
-    totalCount: 0,
-    totalPages: 1,
-  });
+  const [pagination, setPagination] = useState<Pagination>(PAGINATION_DEFAULTS);
   const [subscribed, setSubscribed] = useState<boolean>(false);
 
   const {
@@ -268,7 +264,13 @@ function Chat(): React.ReactElement {
           token,
         };
         connection.emit(EVENTS.GET_CHAT, payload);
-        connection.emit(EVENTS.GET_CHAT_MESSAGES, payload);
+        connection.emit(
+          EVENTS.GET_CHAT_MESSAGES,
+          {
+            ...payload,
+            limit: pagination.limit,
+          },
+        );
       }
     },
     [subscribed],

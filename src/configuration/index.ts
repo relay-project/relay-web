@@ -55,6 +55,13 @@ export const MAX_RECOVERY_QUESTION_LENGTH = 255;
 
 export const MIN_PASSWORD_LENGTH = 8;
 
+export const PAGINATION_DEFAULTS = {
+  currentPage: 1,
+  limit: 100,
+  totalCount: 0,
+  totalPages: 1,
+};
+
 export const RESPONSE_MESSAGES = {
   LOGIN_ALREADY_IN_USE: 'LOGIN_ALREADY_IN_USE',
   OLD_PASSWORD_IS_INVALID: 'OLD_PASSWORD_IS_INVALID',

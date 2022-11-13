@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 import delay from '../../utilities/delay';
 import { deleteUserData } from '../../store/features/user.slice';
-import { EVENTS } from '../../configuration';
+import { EVENTS, PAGINATION_DEFAULTS } from '../../configuration';
 import HomeLayout from './components/home.layout';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -44,14 +44,8 @@ function Home(): React.ReactElement {
   const navigate = useNavigate();
 
   const [chats, setChats] = useState<ChatListEntry[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    currentPage: 1,
-    limit: 100,
-    totalCount: 0,
-    totalPages: 1,
-  });
+  const [pagination, setPagination] = useState<Pagination>(PAGINATION_DEFAULTS);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState<boolean>(false);
-  const [showFindUsersModal, setShowFindUsersModal] = useState<boolean>(false);
   const [showUpdateRecoveryModal, setShowUpdateRecoveryModal] = useState<boolean>(false);
 
   const { id: userId, token } = useAppSelector((state) => state.user);
@@ -83,6 +77,7 @@ function Home(): React.ReactElement {
     connection.emit(
       EVENTS.GET_CHATS,
       {
+        limit: pagination.limit,
         token,
       },
     );
@@ -108,9 +103,6 @@ function Home(): React.ReactElement {
   };
 
   const toggleModal = (name: string): void => {
-    if (name === 'find-users') {
-      return setShowFindUsersModal((state: boolean): boolean => !state);
-    }
     if (name === 'password') {
       return setShowChangePasswordModal((state: boolean): boolean => !state);
     }
@@ -120,7 +112,6 @@ function Home(): React.ReactElement {
   const handleCreateChatResponse = (
     response: Response<{ chatId: number, isNew: boolean }>,
   ): void => {
-    console.log(response);
     const { payload: { chatId = null } = {} } = response;
     return navigate(`/${ROUTING.chat}/${chatId}`);
   };
@@ -149,7 +140,6 @@ function Home(): React.ReactElement {
       handleLogout={handleLogout}
       handleNavigation={handleNavigation}
       showChangePasswordModal={showChangePasswordModal}
-      showFindUsersModal={showFindUsersModal}
       showUpdateRecoveryModal={showUpdateRecoveryModal}
       toggleModal={toggleModal}
       token={token}
