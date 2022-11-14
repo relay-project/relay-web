@@ -8,6 +8,7 @@ export const CHAT_TYPES = {
 export const COLORS = {
   accent: '#6210f1',
   accentLight: '#9050ff',
+  muted: '#AAAAAA',
   text: '#FCFCFC',
 };
 
@@ -19,6 +20,7 @@ export const ERROR_MESSAGES = {
   loginShouldBeAlphanumeric: 'Login should be alphanumeric!',
   loginAlreadyInUse: 'Login is already in use!',
   loginIsTooLong: 'Login is too long!',
+  missingRequiredData: 'Missing required data!',
   passwordConfirmationIsInvalid: 'Password confirmation is invalid!',
   passwordIsTooLong: 'Password is too long!',
   passwordIsTooShort: 'Password should be at least 8 symbols long!',
@@ -72,6 +74,7 @@ export const PAGINATION_DEFAULTS = {
 
 export const RESPONSE_MESSAGES = {
   LOGIN_ALREADY_IN_USE: 'LOGIN_ALREADY_IN_USE',
+  MISSING_DATA: 'MISSING_DATA',
   OLD_PASSWORD_IS_INVALID: 'OLD_PASSWORD_IS_INVALID',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
 };

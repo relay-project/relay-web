@@ -13,7 +13,6 @@ import HomeLayout from './components/home.layout';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
-import { ROUTING } from '../../router';
 import type {
   ChatModel,
   MessageModel,
@@ -62,17 +61,6 @@ function Home(): React.ReactElement {
     );
   };
 
-  const handleCreateChat = async (): Promise<typeof connection> => {
-    await delay();
-    return connection.emit(
-      EVENTS.CREATE_CHAT,
-      {
-        invited: [3],
-        token,
-      },
-    );
-  };
-
   const handleGetChats = (): void => {
     connection.emit(
       EVENTS.GET_CHATS,
@@ -109,22 +97,13 @@ function Home(): React.ReactElement {
     return setShowUpdateRecoveryModal((state: boolean): boolean => !state);
   };
 
-  const handleCreateChatResponse = (
-    response: Response<{ chatId: number, isNew: boolean }>,
-  ): void => {
-    const { payload: { chatId = null } = {} } = response;
-    return navigate(`/${ROUTING.chat}/${chatId}`);
-  };
-
   useEffect(
     (): (() => void) => {
       connection.on(EVENTS.COMPLETE_LOGOUT, handleLogout);
-      connection.on(EVENTS.CREATE_CHAT, handleCreateChatResponse);
       connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
 
       return (): void => {
         connection.off(EVENTS.COMPLETE_LOGOUT, handleLogout);
-        connection.off(EVENTS.CREATE_CHAT, handleCreateChatResponse);
         connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
       };
     },
@@ -134,7 +113,6 @@ function Home(): React.ReactElement {
   return (
     <HomeLayout
       chats={chats}
-      handleCreateChat={handleCreateChat}
       handleGetChats={handleGetChats}
       handleCompleteLogout={handleCompleteLogout}
       handleLogout={handleLogout}

@@ -3,25 +3,31 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '../../components/button';
 import CloseIcon from '../../icons/close';
 import {
+  COLORS,
   ERROR_MESSAGES,
   EVENTS,
   PAGINATION_DEFAULTS,
   RESPONSE_MESSAGES,
   SPACER,
 } from '../../configuration';
+import delay from '../../utilities/delay';
 import Input from '../../components/input';
 import type { Pagination, UserModel } from '../../types/models';
 import { type Response, SocketContext } from '../../contexts/socket.context';
+import { ROUTING } from '../../router';
 import useDebounce from '../../hooks/use-debounce';
 import useRedirect from '../../hooks/use-redirect';
 import { useAppSelector } from '../../store/hooks';
 import './styles.css';
+import Spinner from '../../components/spinner';
 
 type FoundUser = Pick<UserModel, 'id' | 'login'>;
 
@@ -32,25 +38,102 @@ interface FindUsersPayload extends Pagination {
 function CreateChat(): React.ReactElement {
   useRedirect();
   const connection = useContext(SocketContext);
+  const navigate = useNavigate();
 
-  const [searchError, setSearchError] = useState<string>('');
+  const [chatNameInput, setChatNameInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [pagination, setPagination] = useState<Pagination>(PAGINATION_DEFAULTS);
+  const [searchError, setSearchError] = useState<string>('');
   const [searchInput, setSearchInput] = useState<string>('');
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = useState<FoundUser[]>([]);
   const [users, setUsers] = useState<FoundUser[]>([]);
 
   const debouncedSearch: string = useDebounce<string>(searchInput, 500);
   const { token } = useAppSelector((state) => state.user);
 
+  const disableCreateButton = useMemo(
+    (): boolean => selectedUsers.length === 0
+      || (selectedUsers.length > 1 && !chatNameInput),
+    [
+      chatNameInput,
+      selectedUsers,
+    ],
+  );
+
+  const startChatText = useMemo(
+    (): string => {
+      if (selectedUsers.length === 0) {
+        return 'Start chat';
+      }
+      if (selectedUsers.length === 1) {
+        return `Start chat with ${selectedUsers[0].login}`;
+      }
+      return `Start chat with ${selectedUsers.length} users`;
+    },
+    [selectedUsers],
+  );
+
+  const handleCreateChat = useCallback(
+    async (): Promise<null | typeof connection> => {
+      if (selectedUsers.length === 0) {
+        return null;
+      }
+      const selectedIds = selectedUsers.map((user: FoundUser): number => user.id);
+      const trimmedChatName = (chatNameInput || '').trim();
+      if (selectedIds.length > 1 && !trimmedChatName) {
+        return null;
+      }
+      setLoading(true);
+      await delay();
+      return connection.emit(
+        EVENTS.CREATE_CHAT,
+        {
+          chatName: trimmedChatName,
+          invited: selectedIds,
+          token,
+        },
+      );
+    },
+    [
+      chatNameInput,
+      selectedUsers,
+    ],
+  );
+
+  const handleCreateChatResponse = (
+    response: Response<{ chatId: number, isNew: boolean }>,
+  ): void => {
+    setLoading(false);
+    if (response.status > 299) {
+      const { info } = response;
+      if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
+        return setSearchInput(ERROR_MESSAGES.providedDataIsInvalid);
+      }
+      if (info === RESPONSE_MESSAGES.MISSING_DATA) {
+        return setSearchInput(ERROR_MESSAGES.missingRequiredData);
+      }
+      return setSearchInput(ERROR_MESSAGES.generic);
+    }
+
+    const { payload: { chatId = null } = {} } = response;
+    if (!chatId) {
+      return setSearchError(ERROR_MESSAGES.generic);
+    }
+    return navigate(`/${ROUTING.chat}/${chatId}`);
+  };
+
   const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
-    const { currentTarget: { value = '' } = {} } = event;
+    const { currentTarget: { name = '', value = '' } = {} } = event;
     setSearchError('');
+    if (name === 'chatName') {
+      return setChatNameInput(value);
+    }
     return setSearchInput(value);
   };
 
   const handleFindUsersResponse = (response: Response<FindUsersPayload>): void => {
-    setLoading(false);
+    setSearchLoading(false);
     if (response.status > 299) {
       if (response.info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
         return setSearchError(ERROR_MESSAGES.providedDataIsInvalid);
@@ -91,9 +174,11 @@ function CreateChat(): React.ReactElement {
 
   useEffect(
     (): (() => void) => {
+      connection.on(EVENTS.CREATE_CHAT, handleCreateChatResponse);
       connection.on(EVENTS.FIND_USERS, handleFindUsersResponse);
 
       return (): void => {
+        connection.off(EVENTS.CREATE_CHAT, handleCreateChatResponse);
         connection.off(EVENTS.FIND_USERS, handleFindUsersResponse);
       };
     },
@@ -106,15 +191,17 @@ function CreateChat(): React.ReactElement {
       setSearchError('');
       setUsers([]);
       if (trimmedSearch) {
-        setLoading(true);
-        connection.emit(
-          EVENTS.FIND_USERS,
-          {
-            limit: pagination.limit,
-            search: trimmedSearch,
-            token,
-          },
-        );
+        setSearchLoading(true);
+        delay(500).then((): void => {
+          connection.emit(
+            EVENTS.FIND_USERS,
+            {
+              limit: pagination.limit,
+              search: trimmedSearch,
+              token,
+            },
+          );
+        });
       }
     },
     [debouncedSearch],
@@ -122,6 +209,9 @@ function CreateChat(): React.ReactElement {
 
   return (
     <div className="flex direction-column">
+      { loading && (
+        <Spinner />
+      ) }
       <div className="flex direction-column width">
         <h1 className="noselect">
           Create new chat
@@ -129,7 +219,7 @@ function CreateChat(): React.ReactElement {
         <Input
           classes={['mt-1']}
           handleInput={handleInput}
-          loading={loading}
+          loading={searchLoading}
           name="search"
           placeholder="Search users by their login..."
           styles={{
@@ -173,6 +263,7 @@ function CreateChat(): React.ReactElement {
                   styles={{
                     height: SPACER,
                   }}
+                  title="Remove"
                 >
                   <CloseIcon />
                 </Button>
@@ -180,6 +271,27 @@ function CreateChat(): React.ReactElement {
             ),
           ) }
         </div>
+        { selectedUsers.length > 1 && (
+          <Input
+            classes={['fade-in', 'mt-1']}
+            handleInput={handleInput}
+            name="chatName"
+            placeholder="Chat name"
+            value={chatNameInput}
+          />
+        ) }
+        <Button
+          classes={['mt-1']}
+          disabled={disableCreateButton}
+          handleClick={handleCreateChat}
+          styles={{
+            background: disableCreateButton
+              ? COLORS.muted
+              : COLORS.accent,
+          }}
+        >
+          { startChatText }
+        </Button>
       </div>
     </div>
   );

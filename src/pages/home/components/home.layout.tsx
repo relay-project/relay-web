@@ -1,16 +1,14 @@
 import React, { memo } from 'react';
-import { Socket } from 'socket.io-client';
 
 import Button from '../../../components/button';
 import ChangePasswordModal from './change-password.modal';
 import { CHAT_TYPES } from '../../../configuration';
-import type { ChatListEntry } from '../home';
+import type { ChatListEntry, ChatUser } from '../home';
 import { ROUTING } from '../../../router';
 import UpdateRecoveryModal from './update-recovery.modal';
 
 interface HomeLayoutProps {
   chats: ChatListEntry[];
-  handleCreateChat: () => Promise<Socket>;
   handleGetChats: () => void;
   handleCompleteLogout: () => void;
   handleLogout: () => void;
@@ -25,7 +23,6 @@ interface HomeLayoutProps {
 function HomeLayout(props: HomeLayoutProps): React.ReactElement {
   const {
     chats,
-    handleCreateChat,
     handleGetChats,
     handleCompleteLogout,
     handleLogout,
@@ -98,13 +95,6 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         >
           Get chats
         </button>
-        <button
-          className="mt-1"
-          onClick={handleCreateChat}
-          type="button"
-        >
-          Create chat HARDCODED
-        </button>
         { chats.length > 0 && chats.map((chat: ChatListEntry): React.ReactNode => (
           <div
             className="flex mt-1 justify-space-between"
@@ -114,16 +104,23 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
               { chat.type === CHAT_TYPES.private && (
                 <span>
                   { `Chat with ${chat.users.filter(
-                    (user): boolean => userId !== user.id,
+                    (user: ChatUser): boolean => userId !== user.id,
                   )[0].login}` }
                 </span>
               ) }
-              <div>
-                { `Last message by ${chat.latestMessage[0].authorId === userId
-                  ? 'you'
-                  : chat.latestMessage[0].authorLogin
-                }: ${chat.latestMessage[0].text}` }
-              </div>
+              { chat.type === CHAT_TYPES.group && (
+                <span>
+                  { chat.name || `Chat with ${chat.users.length} users` }
+                </span>
+              ) }
+              { chat.latestMessage && chat.latestMessage.length > 0 && (
+                <div>
+                  { `Last message by ${chat.latestMessage[0].authorId === userId
+                    ? 'you'
+                    : chat.latestMessage[0].authorLogin
+                  }: ${chat.latestMessage[0].text}` }
+                </div>
+              ) }
             </div>
             <Button
               classes={['ml-1']}

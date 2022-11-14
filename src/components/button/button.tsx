@@ -10,6 +10,7 @@ interface ButtonProps {
   isLink?: boolean;
   isSubmit?: boolean;
   styles?: object;
+  title?: string;
 }
 
 function Button(props: ButtonProps): React.ReactElement {
@@ -21,6 +22,7 @@ function Button(props: ButtonProps): React.ReactElement {
     isLink,
     isSubmit,
     styles,
+    title,
   } = props;
 
   const classesString = classes && classes.length > 0
@@ -42,6 +44,7 @@ function Button(props: ButtonProps): React.ReactElement {
       style={{
         ...styles,
       }}
+      title={title}
       type={
         isSubmit
           ? 'submit'
@@ -60,6 +63,7 @@ Button.defaultProps = {
   isLink: false,
   isSubmit: false,
   styles: {},
+  title: '',
 };
 
 export default memo(Button);
