@@ -23,11 +23,11 @@ import Input from '../../components/input';
 import type { Pagination, UserModel } from '../../types/models';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
+import Spinner from '../../components/spinner';
 import useDebounce from '../../hooks/use-debounce';
 import useRedirect from '../../hooks/use-redirect';
 import { useAppSelector } from '../../store/hooks';
 import './styles.css';
-import Spinner from '../../components/spinner';
 
 type FoundUser = Pick<UserModel, 'id' | 'login'>;
 
@@ -131,6 +131,8 @@ function CreateChat(): React.ReactElement {
     }
     return setSearchInput(value);
   };
+
+  // TODO: pagination for user search
 
   const handleFindUsersResponse = (response: Response<FindUsersPayload>): void => {
     setSearchLoading(false);

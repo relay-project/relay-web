@@ -2,15 +2,16 @@ import React, { memo } from 'react';
 
 import Button from '../../../components/button';
 import ChangePasswordModal from './change-password.modal';
-import { CHAT_TYPES } from '../../../configuration';
+import { CHAT_TYPES, COLORS, SPACER } from '../../../configuration';
 import type { ChatListEntry, ChatUser } from '../home';
 import { ROUTING } from '../../../router';
 import UpdateRecoveryModal from './update-recovery.modal';
+import CloseIcon from '../../../icons/close';
 
 interface HomeLayoutProps {
   chats: ChatListEntry[];
-  handleGetChats: () => void;
   handleCompleteLogout: () => void;
+  handleHideChat: (chatId: number) => void;
   handleLogout: () => void;
   handleNavigation: (destination: string) => void;
   toggleModal: (name: string) => void;
@@ -23,8 +24,8 @@ interface HomeLayoutProps {
 function HomeLayout(props: HomeLayoutProps): React.ReactElement {
   const {
     chats,
-    handleGetChats,
     handleCompleteLogout,
+    handleHideChat,
     handleLogout,
     handleNavigation,
     showChangePasswordModal,
@@ -88,31 +89,26 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
         >
           Update recovery data
         </button>
-        <button
-          className="mt-1"
-          onClick={handleGetChats}
-          type="button"
-        >
-          Get chats
-        </button>
         { chats.length > 0 && chats.map((chat: ChatListEntry): React.ReactNode => (
           <div
-            className="flex mt-1 justify-space-between"
+            className="flex mt-1 justify-space-between align-items-center"
             key={chat.id}
           >
-            <div className="flex direction-column">
-              { chat.type === CHAT_TYPES.private && (
-                <span>
-                  { `Chat with ${chat.users.filter(
-                    (user: ChatUser): boolean => userId !== user.id,
-                  )[0].login}` }
-                </span>
-              ) }
-              { chat.type === CHAT_TYPES.group && (
-                <span>
-                  { chat.name || `Chat with ${chat.users.length} users` }
-                </span>
-              ) }
+            <div className="flex direction-column noselect">
+              <div>
+                <Button
+                  handleClick={(): void => handleNavigation(`/${ROUTING.chat}/${chat.id}`)}
+                  isLink
+                >
+                  { chat.type === CHAT_TYPES.private && `Chat with ${
+                    chat.users.filter(
+                      (user: ChatUser): boolean => userId !== user.id,
+                    )[0].login
+                  }` }
+                  { chat.type === CHAT_TYPES.group
+                    && (chat.name || `Chat with ${chat.users.length} users`) }
+                </Button>
+              </div>
               { chat.latestMessage && chat.latestMessage.length > 0 && (
                 <div>
                   { `Last message by ${chat.latestMessage[0].authorId === userId
@@ -121,13 +117,26 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
                   }: ${chat.latestMessage[0].text}` }
                 </div>
               ) }
+              { !chat.latestMessage && (
+                <div>
+                  No messages yet!
+                </div>
+              ) }
             </div>
             <Button
-              classes={['ml-1']}
-              handleClick={(): void => handleNavigation(`/${ROUTING.chat}/${chat.id}`)}
+              handleClick={(): void => handleHideChat(chat.id)}
               isLink
+              styles={{
+                height: SPACER + SPACER / 2,
+              }}
+              title="Hide this chat"
             >
-              Open
+              <CloseIcon
+                color={COLORS.accent}
+                height={SPACER + SPACER / 2}
+                hoverColor={COLORS.accentLight}
+                width={SPACER + SPACER / 2}
+              />
             </Button>
           </div>
         )) }

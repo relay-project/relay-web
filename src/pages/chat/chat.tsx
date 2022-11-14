@@ -14,6 +14,7 @@ import {
   ERROR_MESSAGES,
   EVENTS,
   PAGINATION_DEFAULTS,
+  RESPONSE_MESSAGES,
 } from '../../configuration';
 import { type Response, SocketContext } from '../../contexts/socket.context';
 import { useAppSelector } from '../../store/hooks';
@@ -120,7 +121,16 @@ function Chat(): React.ReactElement {
   const handleGetChatResponse = (response: Response<GetChatPayload>): void => {
     setChatLoading(false);
 
-    // TODO: handle errors
+    if (response.status > 299) {
+      const { info } = response;
+      if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
+        return setError(ERROR_MESSAGES.providedDataIsInvalid);
+      }
+      if (info === RESPONSE_MESSAGES.INVALID_CHAT_ID) {
+        return setError(ERROR_MESSAGES.chatNotFound);
+      }
+      return setError(ERROR_MESSAGES.generic);
+    }
 
     if (!response.payload) {
       return setError(ERROR_MESSAGES.generic);
@@ -136,7 +146,16 @@ function Chat(): React.ReactElement {
   ): void => {
     setChatMessagesLoading(false);
 
-    // TODO: handle errors
+    if (response.status > 299) {
+      const { info } = response;
+      if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
+        return setError(ERROR_MESSAGES.providedDataIsInvalid);
+      }
+      if (info === RESPONSE_MESSAGES.INVALID_CHAT_ID) {
+        return setError(ERROR_MESSAGES.chatNotFound);
+      }
+      return setError(ERROR_MESSAGES.generic);
+    }
 
     if (!response.payload) {
       return setError(ERROR_MESSAGES.generic);
@@ -171,7 +190,14 @@ function Chat(): React.ReactElement {
     setChatLoading(false);
 
     if (response.status > 299) {
-      // TODO: handle error response
+      const { info } = response;
+      if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
+        return setError(ERROR_MESSAGES.providedDataIsInvalid);
+      }
+      if (info === RESPONSE_MESSAGES.INVALID_CHAT_ID) {
+        return setError(ERROR_MESSAGES.chatNotFound);
+      }
+      return setError(ERROR_MESSAGES.generic);
     }
 
     return navigate(
@@ -294,16 +320,21 @@ function Chat(): React.ReactElement {
           </Button>
         </div>
       </div>
-      { chatMessagesLoading && (
+      { error && (
+        <div className="mt-1 text-center">
+          { error }
+        </div>
+      )}
+      { !error && chatMessagesLoading && (
         <div>
           Loading messages
         </div>
       ) }
-      { !chatMessagesLoading && (
+      { !error && !chatMessagesLoading && (
         <>
           { messages.length === 0 && (
             <div>
-              Messages not found!
+              No messages yet
             </div>
           ) }
           <div className="flex direction-column messages">

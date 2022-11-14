@@ -15,6 +15,7 @@ export const COLORS = {
 export const ERROR_MESSAGES = {
   accessDenied: 'Access denied!',
   accountSuspended: 'Account suspended!',
+  chatNotFound: 'Could not find requested chat!',
   currentPasswordIsInvalid: 'Current password is invalid!',
   generic: 'Something went wrong',
   loginShouldBeAlphanumeric: 'Login should be alphanumeric!',
@@ -73,6 +74,7 @@ export const PAGINATION_DEFAULTS = {
 };
 
 export const RESPONSE_MESSAGES = {
+  INVALID_CHAT_ID: 'INVALID_CHAT_ID',
   LOGIN_ALREADY_IN_USE: 'LOGIN_ALREADY_IN_USE',
   MISSING_DATA: 'MISSING_DATA',
   OLD_PASSWORD_IS_INVALID: 'OLD_PASSWORD_IS_INVALID',
