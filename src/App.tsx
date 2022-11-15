@@ -19,12 +19,12 @@ function App(): React.ReactElement {
 
   useEffect(
     (): void => {
+      const newDeviceId = cuid();
       if (!deviceId) {
-        const newDeviceId = cuid();
         dispatch(setDeviceId(newDeviceId));
-        if (!deviceName) {
-          dispatch(setDeviceName(newDeviceId));
-        }
+      }
+      if (!deviceName) {
+        dispatch(setDeviceName(newDeviceId));
       }
 
       connection.open();

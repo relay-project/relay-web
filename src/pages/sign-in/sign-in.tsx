@@ -18,7 +18,7 @@ import { type Response, SocketContext } from '../../contexts/socket.context';
 import { ROUTING } from '../../router';
 import { setUserData } from '../../store/features/user.slice';
 import SignInLayout from './components/sign-in.layout';
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 
 interface SignInPayload {
@@ -42,6 +42,8 @@ function SignIn(): React.ReactElement {
   const [login, setLogin] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showAccountSuspendedModal, setShowAccountSuspendedModal] = useState<boolean>(false);
+
+  const { deviceId, deviceName } = useAppSelector((state) => state.device);
 
   const handleInput = (event: React.FormEvent<HTMLInputElement>): void => {
     const { currentTarget: { name = '', value = '' } = {} } = event;
@@ -116,6 +118,8 @@ function SignIn(): React.ReactElement {
       return connection.emit(
         EVENTS.SIGN_IN,
         {
+          deviceId,
+          deviceName,
           login: trimmedLogin,
           password: trimmedPassword,
         },
