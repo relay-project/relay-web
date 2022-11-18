@@ -36,6 +36,8 @@ export const EVENTS = {
   CONNECT: 'connect',
   CREATE_CHAT: 'create-chat',
   DELETE_ACCOUNT: 'delete-account',
+  DEVICE_CONNECTED: 'device-connected',
+  DEVICE_DISCONNECTED: 'device-disconnected',
   FIND_USERS: 'find-users',
   GET_CHAT: 'get-chat',
   GET_CHAT_MESSAGES: 'get-chat-messages',
@@ -52,6 +54,8 @@ export const EVENTS = {
   SIGN_UP: 'sign-up',
   UPDATE_PASSWORD: 'update-password',
   UPDATE_RECOVERY_DATA: 'update-recovery-data',
+  USER_CONNECTED: 'user-connected',
+  USER_DISCONNECTED: 'user-disconnected',
 };
 
 export const MAX_DEVICE_NAME_LENGTH = 64;

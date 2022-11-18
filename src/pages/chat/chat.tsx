@@ -33,6 +33,7 @@ import { ROUTING } from '../../router';
 
 interface ChatUser extends UserModel {
   chatId: number;
+  isOnline?: boolean;
   joinedChat: string;
 }
 
@@ -49,6 +50,10 @@ interface GetMessagesPayload extends Pagination {
   results: UserMessage[];
 }
 
+interface UserConnectionData {
+  userId: number;
+}
+
 function Chat(): React.ReactElement {
   useRedirect();
 
@@ -56,10 +61,10 @@ function Chat(): React.ReactElement {
   const navigate = useNavigate();
   const params = useParams();
 
-  const [chatData, setChatData] = useState<ChatModel>();
-  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
+  const [chatData, setChatData] = useState<ChatModel | null>(null);
   const [chatLoading, setChatLoading] = useState<boolean>(true);
   const [chatMessagesLoading, setChatMessagesLoading] = useState<boolean>(true);
+  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<UserMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
@@ -82,7 +87,9 @@ function Chat(): React.ReactElement {
           if (!anotherUser) {
             return 'Chat';
           }
-          return `Chat with ${anotherUser.login}`;
+          return `Chat with ${anotherUser.login} (${anotherUser.isOnline
+            ? 'online'
+            : 'offline'})`;
         }
         const loginList = chatUsers.reduce(
           (array: string[], user: ChatUser): string[] => {
@@ -247,6 +254,34 @@ function Chat(): React.ReactElement {
     ],
   );
 
+  const handleUserConnection = useCallback(
+    (data: UserConnectionData, value = true): null | void => {
+      const { userId: connectedUserId } = data;
+      return setChatData((state: ChatModel | null): ChatModel | null => {
+        if (!state) {
+          return state;
+        }
+        if (state.type === CHAT_TYPES.private) {
+          setChatUsers(
+            (usersState: ChatUser[]): ChatUser[] => usersState.map(
+              (user: ChatUser): ChatUser => ({
+                ...user,
+                isOnline: user.id === connectedUserId
+                  ? value
+                  : user.isOnline,
+              }),
+            ),
+          );
+        }
+        return state;
+      });
+    },
+    [
+      chatData,
+      chatUsers,
+    ],
+  );
+
   useEffect(
     (): (() => void) => {
       connection.on(EVENTS.GET_CHAT, handleGetChatResponse);
@@ -254,6 +289,14 @@ function Chat(): React.ReactElement {
       connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
       connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
       connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
+      connection.on(
+        EVENTS.USER_CONNECTED,
+        (data): null | void => handleUserConnection(data),
+      );
+      connection.on(
+        EVENTS.USER_DISCONNECTED,
+        (data): null | void => handleUserConnection(data, false),
+      );
 
       setSubscribed(true);
       return (): void => {
@@ -262,6 +305,14 @@ function Chat(): React.ReactElement {
         connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
         connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
         connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
+        connection.off(
+          EVENTS.USER_CONNECTED,
+          (data): null | void => handleUserConnection(data),
+        );
+        connection.off(
+          EVENTS.USER_DISCONNECTED,
+          (data): null | void => handleUserConnection(data, false),
+        );
       };
     },
     [],

@@ -11,12 +11,16 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import chatListReducer from './features/chat-list.slice';
 import deviceReducer from './features/device.slice';
 import spinnerReducer from './features/spinner.slice';
 import userReducer from './features/user.slice';
 
 const persistConfig = {
-  blacklist: ['spinner'],
+  blacklist: [
+    'chatList',
+    'spinner',
+  ],
   key: 'root',
   storage,
   version: 1,
@@ -25,6 +29,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(
   persistConfig,
   combineReducers({
+    chatList: chatListReducer,
     device: deviceReducer,
     spinner: spinnerReducer,
     user: userReducer,
