@@ -23,23 +23,13 @@ import type {
   ChatModel,
   MessageModel,
   Pagination,
-  UserModel,
 } from '../../types/models';
+import type { ChatUser } from '../../store/features/chat-list.slice';
+import { ROUTING } from '../../router';
 import Spinner from '../../components/spinner';
 import Input from '../../components/input';
 import Button from '../../components/button';
 import './styles.css';
-import { ROUTING } from '../../router';
-
-interface ChatUser extends UserModel {
-  chatId: number;
-  isOnline?: boolean;
-  joinedChat: string;
-}
-
-interface GetChatPayload extends ChatModel {
-  users: ChatUser[];
-}
 
 interface UserMessage extends MessageModel {
   isAuthor: boolean;
@@ -50,10 +40,6 @@ interface GetMessagesPayload extends Pagination {
   results: UserMessage[];
 }
 
-interface UserConnectionData {
-  userId: number;
-}
-
 function Chat(): React.ReactElement {
   useRedirect();
 
@@ -62,14 +48,19 @@ function Chat(): React.ReactElement {
   const params = useParams();
 
   const [chatData, setChatData] = useState<ChatModel | null>(null);
-  const [chatLoading, setChatLoading] = useState<boolean>(true);
   const [chatMessagesLoading, setChatMessagesLoading] = useState<boolean>(true);
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<UserMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>('');
   const [pagination, setPagination] = useState<Pagination>(PAGINATION_DEFAULTS);
-  const [subscribed, setSubscribed] = useState<boolean>(false);
+
+  const [entry = null] = useAppSelector(
+    (state) => state.chatList.chats.filter(
+      (chat): boolean => chat.id === Number(params.id),
+    ),
+  );
+  const { isLoading: chatsLoading } = useAppSelector((state) => state.chatList);
 
   const {
     id,
@@ -82,7 +73,7 @@ function Chat(): React.ReactElement {
       if (chatData && chatUsers) {
         if (chatData.type === CHAT_TYPES.private) {
           const [anotherUser = null] = chatUsers.filter(
-            (user: ChatUser): boolean => user.id !== id,
+            (user): boolean => user.id !== id,
           );
           if (!anotherUser) {
             return 'Chat';
@@ -92,7 +83,7 @@ function Chat(): React.ReactElement {
             : 'offline'})`;
         }
         const loginList = chatUsers.reduce(
-          (array: string[], user: ChatUser): string[] => {
+          (array: string[], user): string[] => {
             if (user.id === id) {
               return array;
             }
@@ -124,29 +115,6 @@ function Chat(): React.ReactElement {
     },
     [messages],
   );
-
-  const handleGetChatResponse = (response: Response<GetChatPayload>): void => {
-    setChatLoading(false);
-
-    if (response.status > 299) {
-      const { info } = response;
-      if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
-        return setError(ERROR_MESSAGES.providedDataIsInvalid);
-      }
-      if (info === RESPONSE_MESSAGES.INVALID_CHAT_ID) {
-        return setError(ERROR_MESSAGES.chatNotFound);
-      }
-      return setError(ERROR_MESSAGES.generic);
-    }
-
-    if (!response.payload) {
-      return setError(ERROR_MESSAGES.generic);
-    }
-
-    const { users, ...rest } = response.payload;
-    setChatData(rest);
-    return setChatUsers(users);
-  };
 
   const handleGetChatMessagesResponse = (
     response: Response<GetMessagesPayload>,
@@ -188,14 +156,11 @@ function Chat(): React.ReactElement {
           token,
         },
       );
-      return setChatLoading(true);
     },
     [chatData],
   );
 
   const handleHideChatResponse = (response: Response): void => {
-    setChatLoading(false);
-
     if (response.status > 299) {
       const { info } = response;
       if (info === RESPONSE_MESSAGES.VALIDATION_ERROR) {
@@ -254,108 +219,58 @@ function Chat(): React.ReactElement {
     ],
   );
 
-  const handleUserConnection = useCallback(
-    (data: UserConnectionData, value = true): null | void => {
-      const { userId: connectedUserId } = data;
-      return setChatData((state: ChatModel | null): ChatModel | null => {
-        if (!state) {
-          return state;
-        }
-        if (state.type === CHAT_TYPES.private) {
-          setChatUsers(
-            (usersState: ChatUser[]): ChatUser[] => usersState.map(
-              (user: ChatUser): ChatUser => ({
-                ...user,
-                isOnline: user.id === connectedUserId
-                  ? value
-                  : user.isOnline,
-              }),
-            ),
-          );
-        }
-        return state;
-      });
-    },
-    [
-      chatData,
-      chatUsers,
-    ],
-  );
-
   useEffect(
     (): (() => void) => {
-      connection.on(EVENTS.GET_CHAT, handleGetChatResponse);
-      connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
-      connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
-      connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
-      connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
-      connection.on(
-        EVENTS.USER_CONNECTED,
-        (data): null | void => handleUserConnection(data),
-      );
-      connection.on(
-        EVENTS.USER_DISCONNECTED,
-        (data): null | void => handleUserConnection(data, false),
-      );
+      if (!entry) {
+        if (!chatsLoading) {
+          setError(ERROR_MESSAGES.chatNotFound);
+        }
+      } else {
+        const { users, ...rest } = entry;
+        setChatData(rest);
+        setChatUsers(users);
+        setError('');
 
-      setSubscribed(true);
-      return (): void => {
-        connection.off(EVENTS.GET_CHAT, handleGetChatResponse);
-        connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
-        connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
-        connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
-        connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
-        connection.off(
-          EVENTS.USER_CONNECTED,
-          (data): null | void => handleUserConnection(data),
-        );
-        connection.off(
-          EVENTS.USER_DISCONNECTED,
-          (data): null | void => handleUserConnection(data, false),
-        );
-      };
-    },
-    [],
-  );
+        connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+        connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
+        connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+        connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
 
-  useEffect(
-    (): (() => void) => (): void => {
-      if (chatData && chatData.id) {
         connection.emit(
-          EVENTS.LEAVE_ROOM,
+          EVENTS.GET_CHAT_MESSAGES,
           {
-            chatId: chatData.id,
+            chatId: params.id,
             token,
           },
         );
       }
-    },
-    [chatData],
-  );
 
-  useEffect(
-    (): void => {
-      if (subscribed) {
-        const payload = {
-          chatId: params.id,
-          token,
-        };
-        connection.emit(EVENTS.GET_CHAT, payload);
-        connection.emit(
-          EVENTS.GET_CHAT_MESSAGES,
-          {
-            ...payload,
-            limit: pagination.limit,
-          },
-        );
-      }
+      return (): void => {
+        connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+        connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
+        connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+        connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
+
+        if (chatData && chatData.id) {
+          connection.emit(
+            EVENTS.LEAVE_ROOM,
+            {
+              chatId: chatData.id,
+              token,
+            },
+          );
+        }
+      };
     },
-    [subscribed],
+    [
+      chatsLoading,
+      entry,
+    ],
   );
 
   return (
     <div>
-      { chatLoading && (
+      { chatsLoading && (
         <Spinner />
       ) }
       <div className="flex justify-space-between align-items-center">

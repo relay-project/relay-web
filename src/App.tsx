@@ -22,7 +22,6 @@ function App(): React.ReactElement {
 
   const { deviceId, deviceName } = useAppSelector((state) => state.device);
   const isLoading = useAppSelector((state) => state.spinner.isLoading);
-  const { token } = useAppSelector((state) => state.user);
 
   useEffect(
     (): void => {
@@ -47,7 +46,7 @@ function App(): React.ReactElement {
     [],
   );
 
-  useChatListEvents(connection.connected, token);
+  useChatListEvents(connection.connected);
 
   return (
     <SocketContext.Provider value={connection}>

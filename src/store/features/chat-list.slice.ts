@@ -9,7 +9,9 @@ import type {
 import { PAGINATION_DEFAULTS } from '../../configuration';
 
 export type ChatUser = Pick<UserModel, 'id' | 'login'> & {
+  chatId: number;
   isOnline?: boolean;
+  joinedChat: string;
 };
 
 export type LatestMessage = Pick<MessageModel, 'authorId' | 'createdAt' | 'text'> & {
@@ -96,7 +98,10 @@ export const deviceSlice = createSlice({
 export const {
   addChat,
   deleteChat,
+  setChatList,
   setChats,
+  setDataLoaded,
+  setIsLoading,
   setPagination,
   setUserConnection,
 } = deviceSlice.actions;
