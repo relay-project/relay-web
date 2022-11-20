@@ -113,7 +113,10 @@ function Chat(): React.ReactElement {
     (): void => {
       scrollToBottom();
     },
-    [messages],
+    [
+      chatData,
+      messages,
+    ],
   );
 
   const handleGetChatMessagesResponse = (
@@ -221,6 +224,49 @@ function Chat(): React.ReactElement {
 
   useEffect(
     (): (() => void) => {
+      connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+      connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
+      connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+      connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
+
+      connection.emit(
+        EVENTS.GET_CHAT_MESSAGES,
+        {
+          limit: pagination.limit,
+          chatId: params.id,
+          page: pagination.currentPage,
+          token,
+        },
+      );
+
+      connection.emit(
+        EVENTS.JOIN_ROOM,
+        {
+          chatId: params.id,
+          token,
+        },
+      );
+
+      return (): void => {
+        connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
+        connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
+        connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
+        connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
+
+        connection.emit(
+          EVENTS.LEAVE_ROOM,
+          {
+            chatId: params.id,
+            token,
+          },
+        );
+      };
+    },
+    [],
+  );
+
+  useEffect(
+    (): void => {
       if (!entry) {
         if (!chatsLoading) {
           setError(ERROR_MESSAGES.chatNotFound);
@@ -230,37 +276,7 @@ function Chat(): React.ReactElement {
         setChatData(rest);
         setChatUsers(users);
         setError('');
-
-        connection.on(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
-        connection.on(EVENTS.HIDE_CHAT, handleHideChatResponse);
-        connection.on(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
-        connection.on(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
-
-        connection.emit(
-          EVENTS.GET_CHAT_MESSAGES,
-          {
-            chatId: params.id,
-            token,
-          },
-        );
       }
-
-      return (): void => {
-        connection.off(EVENTS.GET_CHAT_MESSAGES, handleGetChatMessagesResponse);
-        connection.off(EVENTS.HIDE_CHAT, handleHideChatResponse);
-        connection.off(EVENTS.INCOMING_CHAT_MESSAGE, handleIncomingMessage);
-        connection.off(EVENTS.SEND_MESSAGE, handleSendMessageResponse);
-
-        if (chatData && chatData.id) {
-          connection.emit(
-            EVENTS.LEAVE_ROOM,
-            {
-              chatId: chatData.id,
-              token,
-            },
-          );
-        }
-      };
     },
     [
       chatsLoading,

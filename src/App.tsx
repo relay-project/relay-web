@@ -15,6 +15,7 @@ import { SocketContext } from './contexts/socket.context';
 import Spinner from './components/spinner';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import useChatListEvents from './hooks/use-chat-list-events';
+import useDevicesEvents from './hooks/use-devices-events';
 
 function App(): React.ReactElement {
   const connection = useContext(SocketContext);
@@ -47,6 +48,7 @@ function App(): React.ReactElement {
   );
 
   useChatListEvents(connection.connected);
+  useDevicesEvents(connection.connected);
 
   return (
     <SocketContext.Provider value={connection}>

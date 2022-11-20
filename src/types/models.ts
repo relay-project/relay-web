@@ -12,6 +12,12 @@ export interface ChatModel extends Base {
   type: ChatTypes;
 }
 
+export interface DeviceModel extends Base {
+  deviceId: string;
+  deviceName: string;
+  userId: number;
+}
+
 export interface MessageModel extends Base {
   authorId: number;
   chatId: number;

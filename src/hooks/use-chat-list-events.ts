@@ -4,15 +4,15 @@ import {
   useEffect,
 } from 'react';
 
-import { EVENTS } from '../configuration';
-import type { Pagination } from '../types/models';
-import { type Response, SocketContext } from '../contexts/socket.context';
 import {
   type ChatListEntry,
   setChatList,
   setIsLoading,
   setUserConnection,
 } from '../store/features/chat-list.slice';
+import { EVENTS } from '../configuration';
+import type { Pagination } from '../types/models';
+import { type Response, SocketContext } from '../contexts/socket.context';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 interface GetChatsPayload extends Pagination {
@@ -33,6 +33,7 @@ export default function useChatListEvents(connected: boolean): void {
   const handleGetChatsResponse = (response: Response<GetChatsPayload>) => {
     if (response.status > 299) {
       // TODO: handle errors
+      return null;
     }
 
     const { payload } = response;

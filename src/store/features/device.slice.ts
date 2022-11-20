@@ -1,10 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { DeviceModel } from '../../types/models';
 
-export interface DeviceState {
-  deviceId: string;
-  deviceName: string;
-}
+export type DeviceState = Pick<DeviceModel, 'deviceId' | 'deviceName'>;
 
 const initialState: DeviceState = {
   deviceId: '',

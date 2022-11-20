@@ -9,7 +9,6 @@ import type {
 import { PAGINATION_DEFAULTS } from '../../configuration';
 
 export type ChatUser = Pick<UserModel, 'id' | 'login'> & {
-  chatId: number;
   isOnline?: boolean;
   joinedChat: string;
 };
