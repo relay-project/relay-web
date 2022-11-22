@@ -69,6 +69,7 @@ function Home(): React.ReactElement {
   };
 
   const handleLogout = async (): Promise<void> => {
+    connection.emit(EVENTS.LOGOUT, { token });
     dispatch(deleteUserData());
     await delay();
     return navigate('/');
