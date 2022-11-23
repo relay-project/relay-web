@@ -65,6 +65,22 @@ export const deviceSlice = createSlice({
       ...state,
       isLoading: action.payload,
     }),
+    setLatestMessage: (
+      state,
+      action: PayloadAction<{ chatId: number, message: LatestMessage }>,
+    ): ChatListState => ({
+      ...state,
+      chats: state.chats.map((chat: ChatListEntry): ChatListEntry => {
+        const { chatId, message } = action.payload;
+        if (chatId === chat.id) {
+          return {
+            ...chat,
+            latestMessage: [message],
+          };
+        }
+        return chat;
+      }),
+    }),
     setPagination: (state, action: PayloadAction<Pagination>): ChatListState => ({
       ...state,
       pagination: action.payload,
@@ -101,6 +117,7 @@ export const {
   setChats,
   setDataLoaded,
   setIsLoading,
+  setLatestMessage,
   setPagination,
   setUserConnection,
 } = deviceSlice.actions;

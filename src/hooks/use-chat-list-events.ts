@@ -6,8 +6,10 @@ import {
 
 import {
   type ChatListEntry,
+  type LatestMessage,
   setChatList,
   setIsLoading,
+  setLatestMessage,
   setUserConnection,
 } from '../store/features/chat-list.slice';
 import { EVENTS } from '../configuration';
@@ -17,6 +19,10 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 interface GetChatsPayload extends Pagination {
   results: ChatListEntry[];
+}
+
+interface IncomingLatestMessageData extends LatestMessage {
+  chatId: number;
 }
 
 interface UserConnectionData {
@@ -50,19 +56,25 @@ export default function useChatListEvents(connected: boolean): void {
     }));
   };
 
+  const handleIncomingLatestMessage = (
+    data: IncomingLatestMessageData,
+  ) => {
+    const { chatId, ...message } = data;
+    dispatch(setLatestMessage({ chatId, message }));
+  };
+
   const handleUserConnection = useCallback(
     (data: UserConnectionData, isOnline = true) => dispatch(
       setUserConnection({ isOnline, userId: data.userId }),
     ),
-    [
-      chats,
-    ],
+    [chats],
   );
 
   useEffect(
     (): (() => void) => {
       if (connected && token) {
         connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
+        connection.on(EVENTS.INCOMING_LATEST_MESSAGE, handleIncomingLatestMessage);
         connection.on(EVENTS.USER_CONNECTED, handleUserConnection);
         connection.on(
           EVENTS.USER_DISCONNECTED,
@@ -77,6 +89,7 @@ export default function useChatListEvents(connected: boolean): void {
 
       return (): void => {
         connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
+        connection.off(EVENTS.INCOMING_LATEST_MESSAGE, handleIncomingLatestMessage);
         connection.off(EVENTS.USER_CONNECTED, handleUserConnection);
         connection.off(
           EVENTS.USER_DISCONNECTED,
