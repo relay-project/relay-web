@@ -5,6 +5,7 @@ import {
 } from 'react';
 
 import {
+  addChat,
   type ChatListEntry,
   type LatestMessage,
   setChatList,
@@ -23,6 +24,8 @@ interface GetChatsPayload extends Pagination {
 
 interface IncomingLatestMessageData extends LatestMessage {
   chatId: number;
+  login?: string;
+  newMessages?: number;
 }
 
 interface UserConnectionData {
@@ -60,7 +63,25 @@ export default function useChatListEvents(connected: boolean): void {
     data: IncomingLatestMessageData,
   ) => {
     const { chatId, ...message } = data;
-    dispatch(setLatestMessage({ chatId, message }));
+    dispatch(setLatestMessage({
+      chatId,
+      message: {
+        authorId: message.authorId,
+        authorLogin: message.login || '',
+        createdAt: message.createdAt,
+        text: message.text,
+      },
+      newMessages: message.newMessages || 0,
+    }));
+  };
+
+  const handleIncomingShowHiddenChat = (data: ChatListEntry): void => {
+    // TODO: properly save data
+    // dispatch(addChat({
+    //   newMessages: data.newMessages,
+    //   users: data.users,
+    // }));
+    console.log(data);
   };
 
   const handleUserConnection = useCallback(
@@ -75,6 +96,10 @@ export default function useChatListEvents(connected: boolean): void {
       if (connected && token) {
         connection.on(EVENTS.GET_CHATS, handleGetChatsResponse);
         connection.on(EVENTS.INCOMING_LATEST_MESSAGE, handleIncomingLatestMessage);
+        connection.on(
+          EVENTS.INCOMING_SHOW_HIDDEN_CHAT,
+          handleIncomingShowHiddenChat,
+        );
         connection.on(EVENTS.USER_CONNECTED, handleUserConnection);
         connection.on(
           EVENTS.USER_DISCONNECTED,
@@ -90,6 +115,10 @@ export default function useChatListEvents(connected: boolean): void {
       return (): void => {
         connection.off(EVENTS.GET_CHATS, handleGetChatsResponse);
         connection.off(EVENTS.INCOMING_LATEST_MESSAGE, handleIncomingLatestMessage);
+        connection.off(
+          EVENTS.INCOMING_SHOW_HIDDEN_CHAT,
+          handleIncomingShowHiddenChat,
+        );
         connection.off(EVENTS.USER_CONNECTED, handleUserConnection);
         connection.off(
           EVENTS.USER_DISCONNECTED,

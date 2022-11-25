@@ -3,7 +3,10 @@ import React, { memo } from 'react';
 import Button from '../../../components/button';
 import ChangePasswordModal from './change-password.modal';
 import { CHAT_TYPES, COLORS, SPACER } from '../../../configuration';
-import type { ChatListEntry, ChatUser } from '../home';
+import type {
+  ChatListEntry,
+  ChatUser,
+} from '../../../store/features/chat-list.slice';
 import { ROUTING } from '../../../router';
 import UpdateRecoveryModal from './update-recovery.modal';
 import CloseIcon from '../../../icons/close';
@@ -114,7 +117,9 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
                   { `Last message by ${chat.latestMessage[0].authorId === userId
                     ? 'you'
                     : chat.latestMessage[0].authorLogin
-                  }: ${chat.latestMessage[0].text}` }
+                  }: ${chat.latestMessage[0].text} ${
+                    chat.newMessages > 0 ? `(new messages: ${chat.newMessages})` : ''
+                  }` }
                 </div>
               ) }
               { !chat.latestMessage && (

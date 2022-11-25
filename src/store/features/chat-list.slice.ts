@@ -19,6 +19,7 @@ export type LatestMessage = Pick<MessageModel, 'authorId' | 'createdAt' | 'text'
 
 export interface ChatListEntry extends ChatModel {
   latestMessage: LatestMessage[] | null;
+  newMessages: number;
   users: ChatUser[];
 }
 
@@ -67,15 +68,20 @@ export const deviceSlice = createSlice({
     }),
     setLatestMessage: (
       state,
-      action: PayloadAction<{ chatId: number, message: LatestMessage }>,
+      action: PayloadAction<{
+        chatId: number,
+        message: LatestMessage,
+        newMessages: number,
+      }>,
     ): ChatListState => ({
       ...state,
       chats: state.chats.map((chat: ChatListEntry): ChatListEntry => {
-        const { chatId, message } = action.payload;
+        const { chatId, message, newMessages } = action.payload;
         if (chatId === chat.id) {
           return {
             ...chat,
             latestMessage: [message],
+            newMessages,
           };
         }
         return chat;

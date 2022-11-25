@@ -17,14 +17,14 @@ import {
   RESPONSE_MESSAGES,
 } from '../../configuration';
 import { type Response, SocketContext } from '../../contexts/socket.context';
-import { useAppSelector } from '../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import useRedirect from '../../hooks/use-redirect';
 import type {
   ChatModel,
   MessageModel,
   Pagination,
 } from '../../types/models';
-import type { ChatUser } from '../../store/features/chat-list.slice';
+import { ChatUser, setLatestMessage } from '../../store/features/chat-list.slice';
 import { ROUTING } from '../../router';
 import Spinner from '../../components/spinner';
 import Input from '../../components/input';
@@ -44,6 +44,7 @@ function Chat(): React.ReactElement {
   useRedirect();
 
   const connection = useContext(SocketContext);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const params = useParams();
 
@@ -215,11 +216,26 @@ function Chat(): React.ReactElement {
     );
   };
 
-  const handleIncomingMessage = (message: UserMessage): void => setMessages(
-    (state: UserMessage[]): UserMessage[] => [
-      ...state,
-      message,
-    ],
+  const handleIncomingMessage = useCallback(
+    (message: UserMessage): void => {
+      dispatch(setLatestMessage({
+        chatId: message.chatId,
+        message: {
+          authorId: message.authorId,
+          authorLogin: message.login,
+          createdAt: message.createdAt,
+          text: message.text,
+        },
+        newMessages: 0,
+      }));
+      return setMessages(
+        (state: UserMessage[]): UserMessage[] => [
+          ...state,
+          message,
+        ],
+      );
+    },
+    [chatData],
   );
 
   useEffect(

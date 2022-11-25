@@ -7,7 +7,6 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 
 import type {
-  ChatModel,
   MessageModel,
   UserModel,
 } from '../../types/models';
@@ -25,11 +24,6 @@ export type ChatUser = Pick<UserModel, 'id' | 'login'>;
 export type LatestMessage = Pick<MessageModel, 'authorId' | 'createdAt' | 'text'> & {
   authorLogin: string;
 };
-
-export interface ChatListEntry extends ChatModel {
-  latestMessage: LatestMessage[] | null;
-  users: ChatUser[];
-}
 
 function Home(): React.ReactElement {
   useRedirect();
