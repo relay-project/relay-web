@@ -1,7 +1,7 @@
 .button {
   background-color: var(--accent);
   border-radius: var(--spacer-quarter);
-  color: var(--text);
+  color: var(--text-inverted);
   filter: brightness(100%);
   font-size: calc(var(--spacer) - var(--spacer-quarter));
   height: calc(var(--spacer) * 2);
@@ -14,10 +14,14 @@
   transition: filter var(--transition) ease-in;
 }
 .link {
+  background-color: transparent;
   color: var(--accent);
-  transition: color 150ms ease-out;
+  height: auto;
+  padding: 0;
+  transition: color var(--transition) ease-out;
 }
 .link:hover {
-  color: var(--accent-highlight);
-  transition: color 150ms ease-in;
+  background-color: transparent;
+  color: var(--accent-light);
+  transition: color var(--transition) ease-in;
 }

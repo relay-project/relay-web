@@ -38,7 +38,7 @@ function Button(props: ButtonProps): React.ReactElement {
 
   return (
     <button
-      className={`${isLink ? 'link' : 'button'} noselect ${classesString}`}
+      className={`ns ${isLink ? 'link' : 'button'} ${classesString}`}
       disabled={disabled}
       onClick={onClick}
       style={{

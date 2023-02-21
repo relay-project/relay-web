@@ -64,34 +64,30 @@ function HomeLayout(props: HomeLayoutProps): React.ReactElement {
             Create new chat
           </Button>
         </div>
-        <button
-          className="mt-1"
-          onClick={handleLogout}
-          type="button"
+        <Button
+          classes={['mt-1']}
+          handleClick={handleLogout}
         >
           Logout
-        </button>
-        <button
-          className="mt-1"
-          onClick={handleCompleteLogout}
-          type="button"
+        </Button>
+        <Button
+          classes={['mt-1']}
+          handleClick={handleCompleteLogout}
         >
           Complete logout
-        </button>
-        <button
-          className="mt-1"
-          onClick={(): void => toggleModal('password')}
-          type="button"
+        </Button>
+        <Button
+          classes={['mt-1']}
+          handleClick={(): void => toggleModal('password')}
         >
           Change password
-        </button>
-        <button
-          className="mt-1"
-          onClick={(): void => toggleModal('recovery')}
-          type="button"
+        </Button>
+        <Button
+          classes={['mt-1']}
+          handleClick={(): void => toggleModal('recovery')}
         >
           Update recovery data
-        </button>
+        </Button>
         { chats.length > 0 && chats.map((chat: ChatListEntry): React.ReactNode => (
           <div
             className="flex mt-1 justify-space-between align-items-center"

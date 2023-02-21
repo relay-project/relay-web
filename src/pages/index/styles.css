@@ -1,13 +1,12 @@
-.centered {
-  height: 100vh;
-  min-width: calc(var(--spacer) * 20);
+.index {
+  min-height: 100vh;
   padding: var(--spacer) 0;
-  width: 100%; 
+  width: calc(var(--spacer) * 20);
 }
 .title {
   background-clip: text;
   background-color: var(--text);
-  background-image: linear-gradient(45deg, var(--accent-highlight), var(--error));
+  background-image: linear-gradient(45deg, var(--accent-light), var(--error));
   background-repeat: repeat;
   background-size: 100%;
   -webkit-background-clip: text;

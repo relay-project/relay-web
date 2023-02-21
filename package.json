@@ -2,6 +2,7 @@
   "name": "relay-web",
   "private": true,
   "version": "1.0.0",
+  "description": "Relay WEB application",
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
@@ -11,6 +12,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.6",
+    "common-styles": "github:julyskies/common-styles",
     "cuid": "^2.1.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
